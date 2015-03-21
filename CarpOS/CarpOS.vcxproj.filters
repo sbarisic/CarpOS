@@ -21,6 +21,9 @@
     <ClCompile Include="Kernel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Interrupts.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CarpSDK.h">
@@ -32,8 +35,19 @@
     <ClInclude Include="Kernel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Interrupts.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="order.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Object Include="..\asm_obj\asm.obj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\asm_obj\asm.asm">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

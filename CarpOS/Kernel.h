@@ -1,16 +1,6 @@
 #pragma once
 #include "CarpSDK.h"
 
-#define dd(x) \
-	ASM _emit	(x)			& 0xff	\
-	ASM _emit	(x) >> 8	& 0xff	\
-	ASM _emit	(x) >> 16	& 0xff	\
-	ASM _emit	(x) >> 24	& 0xff 
-
-#define dw(x) \
-	ASM _emit (x) & 0xff \
-	ASM _emit (x) >> 8 & 0xff
-
 #define KERNEL_START	100400
 #define KERNEL_STACK	0x103fff
 #define KERNEL_LENGTH	0x200F
@@ -44,5 +34,5 @@ typedef struct {
 	ulong vbe_interface_len;
 } multiboot_info;
 
-NORETURN void KMain();
+void KMain();
 void main(multiboot_info* Info);

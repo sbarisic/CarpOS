@@ -1,15 +1,18 @@
 #include "CarpSDK.h"
 #include "Kernel.h"
 #include "GDT.h"
+#include "Interrupts.h"
 
+#include <string.h>
+
+EXTERN void multiboot_entry() {
 #define FLAGS ((1 << 16) | (1 << 2) | (1 << 1) | (1 << 0))
 #define LOAD_ADDR (0x00101000)
 #define DATA_SIZE (1024 * 8)
 #define BSS_SIZE (1024 * 64)
 
-EXTERN NORETURN void multiboot_entry() {
 	ASM {
-multiboot_header:
+		//multiboot_header:
 		dd(0x1BADB002); // magic
 		dd(FLAGS); // flags
 		dd(-(0x1BADB002 + FLAGS)); // checksum
@@ -19,14 +22,15 @@ multiboot_header:
 		dd(LOAD_ADDR + BSS_SIZE); // bss_end_addr
 		dd(0x00101030); // entry_addr
 		dd(1); // mode_type
-		dd(40); // width
+		dd(80); // width
 		dd(25); // height
 		dd(0); // depth
-		jmp KMain;
+		call KMain;
+		ret;
 	}
 }
 
-NORETURN void KMain() {
+void KMain() {
 	ASM {
 		mov edx, multiboot_entry;
 		mov edx, 0x2BADB002;
@@ -40,6 +44,8 @@ NORETURN void KMain() {
 		push ebx;
 		//push eax;
 		call main;
+		cli;
+		hlt;
 		jmp $;
 
 not_multiboot:
@@ -48,23 +54,36 @@ not_multiboot:
 
 ushort* const VidMem = (ushort*)0xB8000;
 
-void clear_screen() {
-	for (int i = 0; i < 80 * 35; i++)
-		VidMem[i] = 0;
+void clear_line(int l) {
+	memset(VidMem + 80 * l, NULL, sizeof(ushort) * 80);
 }
 
-int Y = 0;
+void clear_screen() {
+	for (int i = 0; i < 25; i++)
+		clear_line(i);
+}
 
 void print(const char* Str) {
+	for (int i = 1; i < 25; i++) {
+		clear_line(i - 1);
+		memcpy(VidMem + 80 * (i - 1), VidMem + 80 * i, sizeof(ushort) * 80);
+	}
+	clear_line(24);
+
 	for (int i = 0; *Str; Str++, i++)
-		VidMem[Y * 80 + i] = (unsigned char)*Str | 0x700;
-	Y++;
+		VidMem[24 * 80 + i] = (unsigned char)*Str | 0x700;
 }
 
 void main(multiboot_info* Info) {
-	GDTInit();
 	clear_screen();
+	
+	print("Initializing GDT");
+	GDTInit();
+
+	print("Initializing Interrupts");
+	InterruptsInit();
 
 	print("Hello Carp!");
 	print("How are you, Carp?");
+	print("Carp.");
 }

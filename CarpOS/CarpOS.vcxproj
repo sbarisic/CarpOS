@@ -109,6 +109,10 @@ $(SolutionDir)MakeISO.bat</Command>
     <PostBuildEvent>
       <Message>Building ISO</Message>
     </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>cd $(SolutionDir)asm_obj
+echo nasming asm.asm &amp;&amp; nasm -fwin32 asm.asm</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -164,18 +168,30 @@ $(SolutionDir)MakeISO.bat</Command>
     <PostBuildEvent>
       <Message>Building ISO</Message>
     </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>cd $(SolutionDir)asm_obj
+echo nasming asm.asm &amp;&amp; nasm -fwin32 asm.asm</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="GDT.cpp" />
+    <ClCompile Include="Interrupts.cpp" />
     <ClCompile Include="Kernel.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CarpSDK.h" />
     <ClInclude Include="GDT.h" />
+    <ClInclude Include="Interrupts.h" />
     <ClInclude Include="Kernel.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="order.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Object Include="..\asm_obj\asm.obj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\asm_obj\asm.asm" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

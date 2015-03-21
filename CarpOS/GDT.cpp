@@ -1,38 +1,34 @@
 #include "GDT.h"
 #include <string.h>
 
-void InitGDTDesc(u32 Base, u32 Limit, u8 Access, u8 Other, GDTDesc* Desc) {
-	Desc->lim0_15 = Limit & 0xFFFF;
-	Desc->base0_15 = Base & 0xFFFF;
-	Desc->base16_23 = (Base & 0xFF0000) >> 16;
-	Desc->access = Access;
-	Desc->lim16_19 = (Limit & 0xF0000) >> 16;
-	Desc->other = Other & 0xF;
-	Desc->base24_31 = (Base & 0xFF000000) >> 24;
+GDTEntry GDT[GDTSIZE];
+GDTPtr GDTP;
+
+extern "C" void GDTFlush();
+
+void GDTSetGate(int Num, ulong Base, ulong Limit, byte Access, byte Gran) {
+	GDT[Num].base_low = (Base & 0xFFFF);
+	GDT[Num].base_middle = (Base >> 16) & 0xFF;
+	GDT[Num].base_high = (Base >> 24) & 0xFF;
+
+	GDT[Num].limit_low = (Limit & 0xFFFF);
+	GDT[Num].granularity = ((Limit >> 16) & 0x0F);
+
+	GDT[Num].granularity |= (Gran & 0xF0);
+	GDT[Num].access = Access;
 }
 
-GDTDesc KGDT[GDTSIZE];
-GDTR KGDTR;
-
 void GDTInit() {
-	/// initialize gdt segments 
-	InitGDTDesc(0x0, 0x0, 0x0, 0x0, &KGDT[0]);
-	InitGDTDesc(0x0, 0xFFFFF, 0x9B, 0x0D, &KGDT[1]);    // code 
-	InitGDTDesc(0x0, 0xFFFFF, 0x93, 0x0D, &KGDT[2]);    // data 
-	InitGDTDesc(0x0, 0x0, 0x97, 0x0D, &KGDT[3]);        // stack 
+	ASM cli;
+	GDTP.limit = sizeof(GDTEntry) * GDTSIZE - 1;
+	GDTP.base = (uint)&GDT;
 
-	InitGDTDesc(0x0, 0xFFFFF, 0xFF, 0x0D, &KGDT[4]);    // ucode 
-	InitGDTDesc(0x0, 0xFFFFF, 0xF3, 0x0D, &KGDT[5]);    // udata 
-	InitGDTDesc(0x0, 0x0, 0xF7, 0x0D, &KGDT[6]);        // ustack 
+	GDTSetGate(0, 0, 0, 0, 0);
+	GDTSetGate(1, 0, 0xFFFFFFFF, 0x9A, 0xCF);
+	GDTSetGate(2, 0, 0xFFFFFFFF, 0x92, 0xCF);
 
-	KGDTR.limit = GDTSIZE * 8;
-	KGDTR.base = GDTBASE;
-
-	memcpy((char*)KGDTR.base, (char*)KGDT, KGDTR.limit);
-
-	ASM {
-		lgdt KGDTR;
-	}
+	//ASM lgdt [GDTP];
+	GDTFlush();
 }
 
 //*/

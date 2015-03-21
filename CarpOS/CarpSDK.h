@@ -12,7 +12,24 @@
 #define IMPORT EXTERN __declspec(dllimport) // imported from DLL
 #define NAKED __declspec(naked) // no prolog or epilog code added
 #define NORETURN __declspec(noreturn)
+
+
+// Assembler crap
 #define ASM __asm
+
+#define db(x) ASM _emit (x)
+
+#define dw(x) \
+	ASM _emit (x) & 0xff \
+	ASM _emit ((x) >> 8) & 0xff
+
+#define dd(x) \
+	ASM _emit	(x)			& 0xff	\
+	ASM _emit	((x) >> 8)	& 0xff	\
+	ASM _emit	((x) >> 16)	& 0xff	\
+	ASM _emit	((x) >> 24)	& 0xff 
+
+#define jmpf(seg, off) db(0xea); dd(off); dw(seg)
 
 typedef unsigned __int8 u8;
 typedef unsigned __int16 u16;

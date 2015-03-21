@@ -9,9 +9,9 @@
 #define __STDC_HOSTED__ 0
 
 #ifdef CARPLIB
-#define EXPORT
+#define CARPLIB_API
 #else
-#define EXPORT
+#define CARPLIB_API
 #endif
 
 /* Internal PDCLib configuration <_PDCLIB_config.h>
