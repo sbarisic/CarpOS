@@ -13,7 +13,7 @@ char *strndup( const char * s, size_t len )
 {
     char* ns = NULL;
     if(s) {
-        ns = malloc(len + 1);
+        ns = (char*)malloc(len + 1);
         if(ns) {
             ns[len] = 0;
             // strncpy to be pedantic about modification in multithreaded 

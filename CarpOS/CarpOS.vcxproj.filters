@@ -13,31 +13,10 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Header Files\string">
-      <UniqueIdentifier>{989e12af-481c-47f9-8085-a49cfa13c712}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\string">
-      <UniqueIdentifier>{9ddbf317-70f3-41c2-bb0c-b5cb853e2c03}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\pdclib\functions\string\memchr.c">
-      <Filter>Source Files\string</Filter>
-    </ClCompile>
-    <ClCompile Include="..\pdclib\functions\string\memcmp.c">
-      <Filter>Source Files\string</Filter>
-    </ClCompile>
-    <ClCompile Include="..\pdclib\functions\string\memmove.c">
-      <Filter>Source Files\string</Filter>
-    </ClCompile>
-    <ClCompile Include="..\pdclib\functions\string\strcmp.c">
-      <Filter>Source Files\string</Filter>
-    </ClCompile>
     <ClCompile Include="GDT.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\pdclib\functions\string\memcpy.c">
-      <Filter>Source Files\string</Filter>
     </ClCompile>
     <ClCompile Include="Kernel.cpp">
       <Filter>Source Files</Filter>
@@ -50,14 +29,11 @@
     <ClInclude Include="GDT.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="_PDCLIB_config.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="string.h">
-      <Filter>Header Files\string</Filter>
-    </ClInclude>
     <ClInclude Include="Kernel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="order.txt" />
   </ItemGroup>
 </Project>

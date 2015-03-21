@@ -45,7 +45,8 @@
     <GenerateManifest>false</GenerateManifest>
     <CustomBuildAfterTargets>
     </CustomBuildAfterTargets>
-    <IncludePath>E:\Projects\CarpOS\CarpOS</IncludePath>
+    <IncludePath>E:\Projects\CarpOS\pdclib\internals;E:\Projects\CarpOS\CarpLib;E:\Projects\CarpOS\pdclib\includes;E:\Projects\CarpOS\CarpOS</IncludePath>
+    <LibraryPath>E:\Projects\CarpOS\bin</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -53,7 +54,8 @@
     <GenerateManifest>false</GenerateManifest>
     <CustomBuildAfterTargets>
     </CustomBuildAfterTargets>
-    <IncludePath>E:\Projects\CarpOS\CarpOS</IncludePath>
+    <IncludePath>E:\Projects\CarpOS\pdclib\internals;E:\Projects\CarpOS\CarpLib;E:\Projects\CarpOS\pdclib\includes;E:\Projects\CarpOS\CarpOS</IncludePath>
+    <LibraryPath>E:\Projects\CarpOS\bin</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -65,7 +67,7 @@
       <DebugInformationFormat>None</DebugInformationFormat>
       <CompileAsManaged>false</CompileAsManaged>
       <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
-      <IgnoreStandardIncludePath>true</IgnoreStandardIncludePath>
+      <IgnoreStandardIncludePath>false</IgnoreStandardIncludePath>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
       <ExceptionHandling>false</ExceptionHandling>
@@ -76,19 +78,22 @@
       <MultiProcessorCompilation>false</MultiProcessorCompilation>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <CompileAs>CompileAsCpp</CompileAs>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <SectionAlignment>4096</SectionAlignment>
-      <BaseAddress>1048576</BaseAddress>
+      <BaseAddress>0x100000</BaseAddress>
       <FixedBaseAddress>false</FixedBaseAddress>
-      <EntryPointSymbol>__multiboot_entry__</EntryPointSymbol>
+      <EntryPointSymbol>KMain</EntryPointSymbol>
       <RandomizedBaseAddress>true</RandomizedBaseAddress>
       <AdditionalOptions>/filealign:0x1000 /driver %(AdditionalOptions)</AdditionalOptions>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
       <GenerateMapFile>true</GenerateMapFile>
       <EnableUAC>false</EnableUAC>
+      <FunctionOrder>$(SolutionDir)CarpOS\order.txt</FunctionOrder>
+      <AdditionalDependencies>CarpLib.lib</AdditionalDependencies>
     </Link>
     <CustomBuildStep>
       <Command>
@@ -118,7 +123,7 @@ $(SolutionDir)MakeISO.bat</Command>
       <CompileAsManaged>false</CompileAsManaged>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
-      <IgnoreStandardIncludePath>true</IgnoreStandardIncludePath>
+      <IgnoreStandardIncludePath>false</IgnoreStandardIncludePath>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>false</ExceptionHandling>
       <StructMemberAlignment>1Byte</StructMemberAlignment>
@@ -134,14 +139,16 @@ $(SolutionDir)MakeISO.bat</Command>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <SectionAlignment>4096</SectionAlignment>
-      <BaseAddress>1048576</BaseAddress>
+      <BaseAddress>0x100000</BaseAddress>
       <FixedBaseAddress>false</FixedBaseAddress>
-      <EntryPointSymbol>__multiboot_entry__</EntryPointSymbol>
+      <EntryPointSymbol>KMain</EntryPointSymbol>
       <RandomizedBaseAddress>true</RandomizedBaseAddress>
       <AdditionalOptions>/filealign:0x1000 /driver %(AdditionalOptions)</AdditionalOptions>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
       <GenerateMapFile>true</GenerateMapFile>
       <EnableUAC>false</EnableUAC>
+      <FunctionOrder>$(SolutionDir)CarpOS\order.txt</FunctionOrder>
+      <AdditionalDependencies>CarpLib.lib</AdditionalDependencies>
     </Link>
     <CustomBuildStep>
       <Command>
@@ -159,21 +166,6 @@ $(SolutionDir)MakeISO.bat</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\pdclib\functions\string\memchr.c">
-      <FileType>CppCode</FileType>
-    </ClCompile>
-    <ClCompile Include="..\pdclib\functions\string\memcmp.c">
-      <FileType>CppCode</FileType>
-    </ClCompile>
-    <ClCompile Include="..\pdclib\functions\string\memcpy.c">
-      <FileType>CppCode</FileType>
-    </ClCompile>
-    <ClCompile Include="..\pdclib\functions\string\memmove.c">
-      <FileType>CppCode</FileType>
-    </ClCompile>
-    <ClCompile Include="..\pdclib\functions\string\strcmp.c">
-      <FileType>CppCode</FileType>
-    </ClCompile>
     <ClCompile Include="GDT.cpp" />
     <ClCompile Include="Kernel.cpp" />
   </ItemGroup>
@@ -181,8 +173,9 @@ $(SolutionDir)MakeISO.bat</Command>
     <ClInclude Include="CarpSDK.h" />
     <ClInclude Include="GDT.h" />
     <ClInclude Include="Kernel.h" />
-    <ClInclude Include="string.h" />
-    <ClInclude Include="_PDCLIB_config.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="order.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

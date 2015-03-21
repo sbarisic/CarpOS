@@ -35,19 +35,19 @@ typedef _PDCLIB_size_t size_t;
    area pointed to by s1. If the two areas overlap, behaviour is undefined.
    Returns the value of s1.
 */
-void * memcpy( void * _PDCLIB_restrict s1, const void * _PDCLIB_restrict s2, size_t n ) _PDCLIB_nothrow;
+EXPORT void * memcpy( void * _PDCLIB_restrict s1, const void * _PDCLIB_restrict s2, size_t n ) _PDCLIB_nothrow;
 
 /* Copy a number of n characters from the memory area pointed to by s2 to the
    area pointed to by s1. The two areas may overlap.
    Returns the value of s1.
 */
-void * memmove( void * s1, const void * , size_t n ) _PDCLIB_nothrow;
+EXPORT void * memmove( void * s1, const void * , size_t n ) _PDCLIB_nothrow;
 
 /* Copy the character array s2 (including terminating '\0' byte) into the
    character array s1.
    Returns the value of s1.
 */
-char * strcpy( char * _PDCLIB_restrict s1, const char * _PDCLIB_restrict s2 ) _PDCLIB_nothrow;
+EXPORT char * strcpy( char * _PDCLIB_restrict s1, const char * _PDCLIB_restrict s2 ) _PDCLIB_nothrow;
 
 /* Copy a maximum of n characters from the character array s2 into the character
    array s1. If s2 is shorter than n characters, '\0' bytes will be appended to
@@ -56,7 +56,7 @@ char * strcpy( char * _PDCLIB_restrict s1, const char * _PDCLIB_restrict s2 ) _P
    behaviour is undefined.
    Returns the value of s1.
 */
-char * strncpy( char * _PDCLIB_restrict s1, const char * _PDCLIB_restrict s2, size_t n ) _PDCLIB_nothrow;
+EXPORT char * strncpy( char * _PDCLIB_restrict s1, const char * _PDCLIB_restrict s2, size_t n ) _PDCLIB_nothrow;
 
 /* Concatenation functions */
 
@@ -81,7 +81,7 @@ char * strncat( char * _PDCLIB_restrict s1, const char * _PDCLIB_restrict s2, si
    Returns 0 if s1 == s2, a negative number if s1 < s2, and a positive number if
    s1 > s2.
 */
-int memcmp( const void * s1, const void * s2, size_t n ) _PDCLIB_nothrow;
+EXPORT int memcmp( const void * s1, const void * s2, size_t n ) _PDCLIB_nothrow;
 
 /* Compare the character arrays s1 and s2.
    Returns 0 if s1 == s2, a negative number if s1 < s2, and a positive number if
@@ -172,7 +172,7 @@ char * strtok( char * _PDCLIB_restrict s1, const char * _PDCLIB_restrict s2 ) _P
    characters of the memory area pointed to by s.
    Returns s.
 */
-void * memset( void * s, int c, size_t n ) _PDCLIB_nothrow;
+EXPORT void * memset( void * s, int c, size_t n ) _PDCLIB_nothrow;
 
 /* Map an error number to a (locale-specific) error message string. Error
    numbers are typically errno values, but any number is mapped to a message.

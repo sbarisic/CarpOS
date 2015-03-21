@@ -30,10 +30,10 @@ typedef _PDCLIB_size_t size_t;
 
 /* TODO: atof(), strtof(), strtod(), strtold() */
 
-double atof( const char * nptr ) _PDCLIB_nothrow;
-double strtod( const char * _PDCLIB_restrict nptr, char * * _PDCLIB_restrict endptr ) _PDCLIB_nothrow;
-float strtof( const char * _PDCLIB_restrict nptr, char * * _PDCLIB_restrict endptr ) _PDCLIB_nothrow;
-long double strtold( const char * _PDCLIB_restrict nptr, char * * _PDCLIB_restrict endptr ) _PDCLIB_nothrow;
+EXPORT double atof( const char * nptr ) _PDCLIB_nothrow;
+EXPORT double strtod( const char * _PDCLIB_restrict nptr, char * * _PDCLIB_restrict endptr ) _PDCLIB_nothrow;
+EXPORT float strtof( const char * _PDCLIB_restrict nptr, char * * _PDCLIB_restrict endptr ) _PDCLIB_nothrow;
+EXPORT long double strtold( const char * _PDCLIB_restrict nptr, char * * _PDCLIB_restrict endptr ) _PDCLIB_nothrow;
 
 /* Seperate the character array nptr into three parts: A (possibly empty)
    sequence of whitespace characters, a character representation of an integer
@@ -57,10 +57,10 @@ long double strtold( const char * _PDCLIB_restrict nptr, char * * _PDCLIB_restri
 /* There is strtoimax() and strtoumax() in <inttypes.h> operating on intmax_t /
    uintmax_t, if the long long versions do not suit your needs.
 */
-long int strtol( const char * _PDCLIB_restrict nptr, char * * _PDCLIB_restrict endptr, int base ) _PDCLIB_nothrow;
-long long int strtoll( const char * _PDCLIB_restrict nptr, char * * _PDCLIB_restrict endptr, int base ) _PDCLIB_nothrow;
-unsigned long int strtoul( const char * _PDCLIB_restrict nptr, char * * _PDCLIB_restrict endptr, int base ) _PDCLIB_nothrow;
-unsigned long long int strtoull( const char * _PDCLIB_restrict nptr, char * * _PDCLIB_restrict endptr, int base ) _PDCLIB_nothrow;
+EXPORT long int strtol( const char * _PDCLIB_restrict nptr, char * * _PDCLIB_restrict endptr, int base ) _PDCLIB_nothrow;
+EXPORT long long int strtoll( const char * _PDCLIB_restrict nptr, char * * _PDCLIB_restrict endptr, int base ) _PDCLIB_nothrow;
+EXPORT unsigned long int strtoul( const char * _PDCLIB_restrict nptr, char * * _PDCLIB_restrict endptr, int base ) _PDCLIB_nothrow;
+EXPORT unsigned long long int strtoull( const char * _PDCLIB_restrict nptr, char * * _PDCLIB_restrict endptr, int base ) _PDCLIB_nothrow;
 
 /* These functions are the equivalent of (int)strtol( nptr, NULL, 10 ),
    strtol( nptr, NULL, 10 ) and strtoll(nptr, NULL, 10 ) respectively, with the
@@ -70,9 +70,9 @@ unsigned long long int strtoull( const char * _PDCLIB_restrict nptr, char * * _P
    provides a simpler atox() function that saves a couple of tests and simply
    continues with the conversion in case of overflow.)
 */
-int atoi( const char * nptr ) _PDCLIB_nothrow;
-long int atol( const char * nptr ) _PDCLIB_nothrow;
-long long int atoll( const char * nptr ) _PDCLIB_nothrow;
+EXPORT int atoi( const char * nptr ) _PDCLIB_nothrow;
+EXPORT long int atol( const char * nptr ) _PDCLIB_nothrow;
+EXPORT long long int atoll( const char * nptr ) _PDCLIB_nothrow;
 
 /* Pseudo-random sequence generation functions */
 
@@ -85,7 +85,7 @@ extern unsigned long int _PDCLIB_seed;
    (PDCLib uses the implementation suggested by the standard document, which is
    next = next * 1103515245 + 12345; return (unsigned int)(next/65536) % 32768;)
 */
-int rand( void ) _PDCLIB_nothrow;
+EXPORT int rand( void ) _PDCLIB_nothrow;
 
 /* Initialize a new pseudo-random sequence with the starting seed. Same seeds
    result in the same pseudo-random sequence. The default seed is 1.
@@ -98,21 +98,21 @@ void srand( unsigned int seed ) _PDCLIB_nothrow;
    satisfied, return NULL. Otherwise, return a pointer to the allocated
    memory. Memory contents are undefined.
 */
-void * malloc( size_t size ) _PDCLIB_nothrow;
+EXPORT void * malloc( size_t size ) _PDCLIB_nothrow;
 
 /* Allocate a chunk of heap memory that is large enough to hold nmemb elements
    of the given size, and zero-initialize that memory. If request could not be
    satisfied, return NULL. Otherwise, return a pointer to the allocated
    memory.
 */
-void * calloc( size_t nmemb, size_t size ) _PDCLIB_nothrow;
+EXPORT void * calloc( size_t nmemb, size_t size ) _PDCLIB_nothrow;
 
 /* De-allocate a chunk of heap memory previously allocated using malloc(),
    calloc(), or realloc(), and pointed to by ptr. If ptr does not match a
    pointer previously returned by the mentioned allocation functions, or
    free() has already been called for this ptr, behaviour is undefined.
 */
-void free( void * ptr ) _PDCLIB_nothrow;
+EXPORT void free( void * ptr ) _PDCLIB_nothrow;
 
 /* Resize a chunk of memory previously allocated with malloc() and pointed to
    by ptr to the given size (which might be larger or smaller than the original
@@ -123,7 +123,7 @@ void free( void * ptr ) _PDCLIB_nothrow;
    memory beyond the original size is undefined. If ptr is NULL, realloc()
    behaves like malloc().
 */
-void * realloc( void * ptr, size_t size ) _PDCLIB_nothrow;
+EXPORT void * realloc( void * ptr, size_t size ) _PDCLIB_nothrow;
 
 /* Communication with the environment */
 
@@ -150,7 +150,7 @@ _PDCLIB_noreturn void abort( void ) _PDCLIB_nothrow;
    reverse order of registration (last-in, first-out).
    Returns zero if registration is successfull, nonzero if it failed.
 */
-int atexit( void (*func)( void ) ) _PDCLIB_nothrow; 
+EXPORT int atexit( void (*func)( void ) ) _PDCLIB_nothrow; 
 
 /* Normal process termination. Functions registered by atexit() (see above) are
    called, streams flushed, files closed and temporary files removed before the
@@ -158,7 +158,7 @@ int atexit( void (*func)( void ) ) _PDCLIB_nothrow;
    and EXIT_FAILURE above.)
    exit() does not return.
 */
-_PDCLIB_noreturn void exit( int status ) _PDCLIB_nothrow;
+EXPORT _PDCLIB_noreturn void exit( int status ) _PDCLIB_nothrow;
 
 /* Normal process termination. Functions registered by atexit() (see above) are
    NOT CALLED. This implementation DOES flush streams, close files and removes
@@ -166,7 +166,7 @@ _PDCLIB_noreturn void exit( int status ) _PDCLIB_nothrow;
    comment for EXIT_SUCCESS and EXIT_FAILURE above.)
    _Exit() does not return.
 */
-_PDCLIB_noreturn void _Exit( int status ) _PDCLIB_nothrow;
+EXPORT _PDCLIB_noreturn void _Exit( int status ) _PDCLIB_nothrow;
 
 /* Search an environment-provided key-value map for the given key name, and
    return a pointer to the associated value string (or NULL if key name cannot

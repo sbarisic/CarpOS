@@ -1,0 +1,161 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\pdclib\functions\string\memchr.c" />
+    <ClCompile Include="..\pdclib\functions\string\memcmp.c" />
+    <ClCompile Include="..\pdclib\functions\string\memcpy.c" />
+    <ClCompile Include="..\pdclib\functions\string\memmove.c" />
+    <ClCompile Include="..\pdclib\functions\string\memset.c" />
+    <ClCompile Include="..\pdclib\functions\string\strcat.c" />
+    <ClCompile Include="..\pdclib\functions\string\strchr.c" />
+    <ClCompile Include="..\pdclib\functions\string\strcmp.c" />
+    <ClCompile Include="..\pdclib\functions\string\strcpy.c" />
+    <ClCompile Include="..\pdclib\functions\string\strcspn.c" />
+    <ClCompile Include="..\pdclib\functions\string\strdup.c" />
+    <ClCompile Include="..\pdclib\functions\string\strerror.c" />
+    <ClCompile Include="..\pdclib\functions\string\strlen.c" />
+    <ClCompile Include="..\pdclib\functions\string\strncat.c" />
+    <ClCompile Include="..\pdclib\functions\string\strncmp.c" />
+    <ClCompile Include="..\pdclib\functions\string\strncpy.c" />
+    <ClCompile Include="..\pdclib\functions\string\strndup.c" />
+    <ClCompile Include="..\pdclib\functions\string\strnlen.c" />
+    <ClCompile Include="..\pdclib\functions\string\strpbrk.c" />
+    <ClCompile Include="..\pdclib\functions\string\strrchr.c" />
+    <ClCompile Include="..\pdclib\functions\string\strspn.c" />
+    <ClCompile Include="..\pdclib\functions\string\strstr.c" />
+    <ClCompile Include="..\pdclib\functions\string\strtok.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\pdclib\includes\assert.h" />
+    <ClInclude Include="..\pdclib\includes\ctype.h" />
+    <ClInclude Include="..\pdclib\includes\float.h" />
+    <ClInclude Include="..\pdclib\includes\inttypes.h" />
+    <ClInclude Include="..\pdclib\includes\iso646.h" />
+    <ClInclude Include="..\pdclib\includes\limits.h" />
+    <ClInclude Include="..\pdclib\includes\locale.h" />
+    <ClInclude Include="..\pdclib\includes\stdarg.h" />
+    <ClInclude Include="..\pdclib\includes\stdbool.h" />
+    <ClInclude Include="..\pdclib\includes\stddef.h" />
+    <ClInclude Include="..\pdclib\includes\stdint.h" />
+    <ClInclude Include="..\pdclib\includes\stdio.h" />
+    <ClInclude Include="..\pdclib\includes\stdlib.h" />
+    <ClInclude Include="..\pdclib\includes\stdnoreturn.h" />
+    <ClInclude Include="..\pdclib\includes\string.h" />
+    <ClInclude Include="..\pdclib\includes\threads.h" />
+    <ClInclude Include="..\pdclib\includes\time.h" />
+    <ClInclude Include="..\pdclib\includes\uchar.h" />
+    <ClInclude Include="..\pdclib\includes\wchar.h" />
+    <ClInclude Include="..\pdclib\includes\wctype.h" />
+    <ClInclude Include="_PDCLIB_config.h" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{3B5492FF-BBB8-41ED-84FD-93D8A292C4D3}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>CarpLib</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v110</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v110</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(SolutionDir)bin\</OutDir>
+    <LinkIncremental>false</LinkIncremental>
+    <IncludePath>E:\Projects\CarpOS\CarpLib;E:\Projects\CarpOS\pdclib\internals;E:\Projects\CarpOS\pdclib\includes</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(SolutionDir)bin\</OutDir>
+    <LinkIncremental>false</LinkIncremental>
+    <IncludePath>E:\Projects\CarpOS\CarpLib;E:\Projects\CarpOS\pdclib\internals;E:\Projects\CarpOS\pdclib\includes</IncludePath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level4</WarningLevel>
+      <Optimization>MinSpace</Optimization>
+      <PreprocessorDefinitions>WIN32;CARPLIB;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <ExceptionHandling>false</ExceptionHandling>
+      <CompileAsManaged>false</CompileAsManaged>
+      <CompileAsWinRT>false</CompileAsWinRT>
+      <SDLCheck>false</SDLCheck>
+      <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
+      <StringPooling>true</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
+    </Link>
+    <Lib>
+      <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
+      <AdditionalOptions>/filealign:0x1000 /driver %(AdditionalOptions)</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <Optimization>MinSpace</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;CARPLIB;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <ExceptionHandling>false</ExceptionHandling>
+      <CompileAsManaged>false</CompileAsManaged>
+      <CompileAsWinRT>false</CompileAsWinRT>
+      <SDLCheck>false</SDLCheck>
+      <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
+      <StringPooling>true</StringPooling>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <DebugInformationFormat>None</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
+    </Link>
+    <Lib>
+      <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
+      <AdditionalOptions>/filealign:0x1000 /driver %(AdditionalOptions)</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

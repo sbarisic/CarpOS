@@ -6,6 +6,8 @@
    Permission is granted to use, modify, and / or redistribute at will.
 */
 
+#include <string.h>
+
 #ifndef REGTEST
 
 int memcmp( const void * s1, const void * s2, size_t n )

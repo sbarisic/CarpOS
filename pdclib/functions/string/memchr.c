@@ -6,6 +6,8 @@
    Permission is granted to use, modify, and / or redistribute at will.
 */
 
+#include <string.h>
+
 #ifndef REGTEST
 
 void * memchr( const void * s, int c, size_t n )
@@ -19,7 +21,7 @@ void * memchr( const void * s, int c, size_t n )
         }
         ++p;
     }
-    return 0;
+    return NULL;
 }
 
 #endif

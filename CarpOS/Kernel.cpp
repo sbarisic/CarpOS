@@ -1,34 +1,48 @@
-
 #include "CarpSDK.h"
-
 #include "Kernel.h"
 #include "GDT.h"
 
-NAKED NORETURN void __multiboot_entry__() {
+#define FLAGS ((1 << 16) | (1 << 2) | (1 << 1) | (1 << 0))
+#define LOAD_ADDR (0x00101000)
+#define DATA_SIZE (1024 * 8)
+#define BSS_SIZE (1024 * 64)
+
+EXTERN NORETURN void multiboot_entry() {
 	ASM {
 multiboot_header:
 		dd(0x1BADB002); // magic
-		dd(1 << 16); // flags
-		dd(-(0x1BADB002 + (1 << 16))); // checksum
-		dd(0x00101000); // header_addr
-		dd(0x00101000); // load_addr
-		dd(0x0010200F); // load_end_addr
-		dd(0x0010200F); // bss_end_addr
+		dd(FLAGS); // flags
+		dd(-(0x1BADB002 + FLAGS)); // checksum
+		dd(LOAD_ADDR); // header_addr
+		dd(LOAD_ADDR); // load_addr
+		dd(LOAD_ADDR + DATA_SIZE); // load_end_addr
+		dd(LOAD_ADDR + BSS_SIZE); // bss_end_addr
 		dd(0x00101030); // entry_addr
-		dd(0x00000000); // mode_type
-		dd(0x00000000); // width
-		dd(0x00000000); // height
-		dd(0x00000000); // depth
+		dd(1); // mode_type
+		dd(40); // width
+		dd(25); // height
+		dd(0); // depth
+		jmp KMain;
+	}
+}
 
-kernel_entry:
+NORETURN void KMain() {
+	ASM {
+		mov edx, multiboot_entry;
+		mov edx, 0x2BADB002;
+		cmp eax, edx;
+		jne not_multiboot;
+
 		mov esp, KERNEL_STACK;
 		xor ecx, ecx;
 		push ecx;
 		popf;
 		push ebx;
-		push eax;
+		//push eax;
 		call main;
 		jmp $;
+
+not_multiboot:
 	}
 }
 
@@ -39,22 +53,18 @@ void clear_screen() {
 		VidMem[i] = 0;
 }
 
-void print(char* Str) {
-	int i = 0;
-	for (char* Ch = Str, i = 0; *Ch; Ch++, i++)
-		VidMem[i] = (unsigned char)*Ch | 0x700;
+int Y = 0;
+
+void print(const char* Str) {
+	for (int i = 0; *Str; Str++, i++)
+		VidMem[Y * 80 + i] = (unsigned char)*Str | 0x700;
+	Y++;
 }
 
-void main(ulong Magic, multiboot_info* Info) {
-	if (Magic != 0x2BADB002) {
-		print("Invalid magic");
-		return;
-	}
-
-	//GDTInit();
-
+void main(multiboot_info* Info) {
+	GDTInit();
 	clear_screen();
-	print((char*)Info->boot_loader_name);
 
-	//print("DONE!     ");
+	print("Hello Carp!");
+	print("How are you, Carp?");
 }

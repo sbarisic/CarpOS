@@ -1,8 +1,21 @@
 #ifndef _PDCLIB_CONFIG_H
 #define _PDCLIB_CONFIG_H
 
+#define __STDC__ 1
+
+#ifdef __STDC_HOSTED__
+#undef __STDC_HOSTED__
+#endif
+#define __STDC_HOSTED__ 0
+
+#ifdef CARPLIB
+#define EXPORT
+#else
+#define EXPORT
+#endif
+
 /* Internal PDCLib configuration <_PDCLIB_config.h>
-   (Generic Template)
+   (Win32 platform)
 
    This file is part of the Public Domain C Library (PDCLib).
    Permission is granted to use, modify, and / or redistribute at will.
@@ -11,7 +24,6 @@
 /* -------------------------------------------------------------------------- */
 /* Misc                                                                       */
 /* -------------------------------------------------------------------------- */
-//#define _PDCLIB_restrict
 
 /* The character (sequence) your platform uses as newline.                    */
 #define _PDCLIB_endl "\n"
@@ -56,11 +68,7 @@
 /* compiler manuals.                                                          */
 #define _PDCLIB_SHRT_BYTES  2
 #define _PDCLIB_INT_BYTES   4
-#if defined(__LP64__) || defined(_LP64)
-#  define _PDCLIB_LONG_BYTES 8
-#else
-#  define _PDCLIB_LONG_BYTES  4
-#endif
+#define _PDCLIB_LONG_BYTES  4
 #define _PDCLIB_LLONG_BYTES 8
 
 /* <stdlib.h> defines the div() function family that allows taking quotient   */
@@ -130,9 +138,15 @@ struct _PDCLIB_lldiv_t
 /* -------------------------------------------------------------------------- */
 
 /* The result type of substracting two pointers */
-#define _PDCLIB_ptrdiff long
-#define _PDCLIB_PTRDIFF LONG
-#define _PDCLIB_PTR_CONV
+#if defined(__amd64__) || defined(_M_AMD64)
+  #define _PDCLIB_ptrdiff long long
+  #define _PDCLIB_PTRDIFF LLONG
+  #define _PDCLIB_PTR_CONV ll
+#else
+  #define _PDCLIB_ptrdiff int
+  #define _PDCLIB_PTRDIFF INT
+  #define _PDCLIB_PTR_CONV
+#endif
 
 /* An integer type that can be accessed as atomic entity (think asynchronous
    interrupts). The type itself is not defined in a freestanding environment,
@@ -142,18 +156,30 @@ struct _PDCLIB_lldiv_t
 #define _PDCLIB_SIG_ATOMIC INT
 
 /* Result type of the 'sizeof' operator (must be unsigned) */
-#define _PDCLIB_size unsigned long
-#define _PDCLIB_SIZE ULONG
+#if defined(__amd64__) || defined(_M_AMD64)
+  #define _PDCLIB_size unsigned long long
+  #define _PDCLIB_SIZE ULLONG
+#else
+  #define _PDCLIB_size unsigned int
+  #define _PDCLIB_SIZE UINT
+#endif
 
 /* Large enough an integer to hold all character codes of the largest supported
    locale.
+
+   XX: Windows requires wchar_t be an unsigned short, but this is not compliant.
 */
 #define _PDCLIB_wint  signed int
-#define _PDCLIB_wchar unsigned int
-#define _PDCLIB_WCHAR UINT
+#define _PDCLIB_wchar unsigned short 
+#define _PDCLIB_WCHAR USHRT
 
-#define _PDCLIB_intptr long
-#define _PDCLIB_INTPTR LONG
+#if defined(__amd64__) || defined(_M_AMD64)
+  #define _PDCLIB_intptr long long
+  #define _PDCLIB_INTPTR LLONG
+#else
+  #define _PDCLIB_intptr int
+  #define _PDCLIB_INTPTR INT
+#endif
 
 /* Largest supported integer type. Implementation note: see _PDCLIB_atomax(). */
 #define _PDCLIB_intmax long long int
@@ -251,11 +277,7 @@ struct _PDCLIB_imaxdiv_t
  */
 #define _PDCLIB_FLOAT_TYPE   SINGLE
 #define _PDCLIB_DOUBLE_TYPE  DOUBLE
-#if defined(__i386__) || defined(__amd64__)
-  #define _PDCLIB_LDOUBLE_TYPE EXTENDED
-#else
-  #define _PDCLIB_LDOUBLE_TYPE DOUBLE
-#endif
+#define _PDCLIB_LDOUBLE_TYPE EXTENDED
 
 /* -------------------------------------------------------------------------- */
 /* Platform-dependent macros defined by the standard headers.                 */
@@ -271,24 +293,36 @@ struct _PDCLIB_imaxdiv_t
    takes the address of member. This is undefined behaviour but should work on
    most compilers.
 */
-#define _PDCLIB_offsetof( type, member ) ( (size_t) &( ( (type *) 0 )->member ) )
+#ifdef __GNUC__
+  #define _PDCLIB_offsetof( type, member ) __builtin_offsetof( type, member )
+#else
+  #define _PDCLIB_offsetof( type, member ) ( (size_t) &( ( (type *) 0 )->member ) )
+#endif
 
 /* Variable Length Parameter List Handling (<stdarg.h>)
    The macros defined by <stdarg.h> are highly dependent on the calling
    conventions used, and you probably have to replace them with builtins of
-   your compiler. The following generic implementation works only for pure
-   stack-based architectures, and only if arguments are aligned to pointer
-   type. Credits to Michael Moody, who contributed this to the Public Domain.
+   your compiler.
 */
 
-/* Internal helper macro. va_round is not part of <stdarg.h>. */
-#define _PDCLIB_va_round( type ) ( (sizeof(type) + sizeof(void *) - 1) & ~(sizeof(void *) - 1) )
+#ifdef __GNUC__
+  typedef __builtin_va_list _PDCLIB_va_list;
+  #define _PDCLIB_va_arg( ap, type ) (__builtin_va_arg( (ap), type ))
+  #define _PDCLIB_va_copy( dest, src ) (__builtin_va_copy( (dest), (src) ))
+  #define _PDCLIB_va_end( ap ) (__builtin_va_end( ap ) )
+  #define _PDCLIB_va_start( ap, parmN ) (__builtin_va_start( (ap), (parmN) ))
+#elif (defined(__i386__) || defined(__i386) || defined(_M_IX86)) && !(defined(__amd64__) || defined(__x86_64__) || defined(_M_AMD64))
+  /* Internal helper macro. va_round is not part of <stdarg.h>. */
+  #define _PDCLIB_va_round( type ) ( (sizeof(type) + sizeof(void *) - 1) & ~(sizeof(void *) - 1) )
 
-typedef char * _PDCLIB_va_list;
-#define _PDCLIB_va_arg( ap, type ) ( (ap) += (_PDCLIB_va_round(type)), ( *(type*) ( (ap) - (_PDCLIB_va_round(type)) ) ) )
-#define _PDCLIB_va_copy( dest, src ) ( (dest) = (src), (void)0 )
-#define _PDCLIB_va_end( ap ) ( (ap) = (void *)0, (void)0 )
-#define _PDCLIB_va_start( ap, parmN ) ( (ap) = (char *) &parmN + ( _PDCLIB_va_round(parmN) ), (void)0 )
+  typedef char * _PDCLIB_va_list;
+  #define _PDCLIB_va_arg( ap, type ) ( (ap) += (_PDCLIB_va_round(type)), ( *(type*) ( (ap) - (_PDCLIB_va_round(type)) ) ) )
+  #define _PDCLIB_va_copy( dest, src ) ( (dest) = (src), (void)0 )
+  #define _PDCLIB_va_end( ap ) ( (ap) = (void *)0, (void)0 )
+  #define _PDCLIB_va_start( ap, parmN ) ( (ap) = (char *) &parmN + ( _PDCLIB_va_round(parmN) ), (void)0 )
+#else
+  #error Compiler/Architecture support please
+#endif
 
 /* -------------------------------------------------------------------------- */
 /* OS "glue", part 1                                                          */
@@ -314,11 +348,13 @@ typedef char * _PDCLIB_va_list;
 
 /* Locale --------------------------------------------------------------------*/
 
-/* Locale method. See _PDCLIB_locale.h */
-/* #define _PDCLIB_LOCALE_METHOD _PDCLIB_LOCALE_METHOD_TSS */
+/* Locale method. See _PDCLIB_locale.h. If undefined, POSIX per-thread locales
+ * will be disabled
+ */
+//#define _PDCLIB_LOCALE_METHOD _PDCLIB_LOCALE_METHOD_TSS
 
 /* wchar_t encoding */
-#define _PDCLIB_WCHAR_ENCODING _PDCLIB_WCHAR_ENCODING_UCS4
+#define _PDCLIB_WCHAR_ENCODING _PDCLIB_WCHAR_ENCODING_UTF16
 
 /* I/O ---------------------------------------------------------------------- */
 
@@ -333,10 +369,10 @@ typedef char * _PDCLIB_va_list;
 #define _PDCLIB_FOPEN_MAX 8
 
 /* Length of the longest filename the implementation guarantees to support. */
-#define _PDCLIB_FILENAME_MAX 128
+#define _PDCLIB_FILENAME_MAX 260
 
 /* Maximum length of filenames generated by tmpnam(). (See tmpfile.c.) */
-#define _PDCLIB_L_tmpnam 46
+#define _PDCLIB_L_tmpnam 260
 
 /* Number of distinct file names that can be generated by tmpnam(). */
 #define _PDCLIB_TMP_MAX 50
@@ -344,6 +380,8 @@ typedef char * _PDCLIB_va_list;
 /* The values of SEEK_SET, SEEK_CUR and SEEK_END, used by fseek().
    Since at least one platform (POSIX) uses the same symbols for its own "seek"
    function, we use whatever the host defines (if it does define them).
+
+   Win32 note: Must match Win32 API values (FILE_BEGIN/FILE_CURRENT/FILE_END)
 */
 #define _PDCLIB_SEEK_SET 0
 #define _PDCLIB_SEEK_CUR 1

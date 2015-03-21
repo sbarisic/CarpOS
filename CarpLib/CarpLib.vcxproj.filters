@@ -1,0 +1,159 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Source Files\string">
+      <UniqueIdentifier>{09142edf-1c4a-45c6-a485-e09b2915c07d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\stdio">
+      <UniqueIdentifier>{948f998e-cd73-4cdd-b76e-f64d5c9855cc}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\pdclib\functions\string\memcpy.c">
+      <Filter>Source Files\string</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pdclib\functions\string\memchr.c">
+      <Filter>Source Files\string</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pdclib\functions\string\memcmp.c">
+      <Filter>Source Files\string</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pdclib\functions\string\memmove.c">
+      <Filter>Source Files\string</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pdclib\functions\string\memset.c">
+      <Filter>Source Files\string</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pdclib\functions\string\strcat.c">
+      <Filter>Source Files\string</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pdclib\functions\string\strchr.c">
+      <Filter>Source Files\string</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pdclib\functions\string\strcmp.c">
+      <Filter>Source Files\string</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pdclib\functions\string\strcpy.c">
+      <Filter>Source Files\string</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pdclib\functions\string\strcspn.c">
+      <Filter>Source Files\string</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pdclib\functions\string\strdup.c">
+      <Filter>Source Files\string</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pdclib\functions\string\strerror.c">
+      <Filter>Source Files\string</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pdclib\functions\string\strlen.c">
+      <Filter>Source Files\string</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pdclib\functions\string\strncat.c">
+      <Filter>Source Files\string</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pdclib\functions\string\strncmp.c">
+      <Filter>Source Files\string</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pdclib\functions\string\strncpy.c">
+      <Filter>Source Files\string</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pdclib\functions\string\strndup.c">
+      <Filter>Source Files\string</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pdclib\functions\string\strnlen.c">
+      <Filter>Source Files\string</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pdclib\functions\string\strpbrk.c">
+      <Filter>Source Files\string</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pdclib\functions\string\strrchr.c">
+      <Filter>Source Files\string</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pdclib\functions\string\strspn.c">
+      <Filter>Source Files\string</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pdclib\functions\string\strstr.c">
+      <Filter>Source Files\string</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pdclib\functions\string\strtok.c">
+      <Filter>Source Files\string</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="_PDCLIB_config.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pdclib\includes\assert.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pdclib\includes\ctype.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pdclib\includes\float.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pdclib\includes\inttypes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pdclib\includes\iso646.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pdclib\includes\limits.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pdclib\includes\locale.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pdclib\includes\stdarg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pdclib\includes\stdbool.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pdclib\includes\stddef.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pdclib\includes\stdint.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pdclib\includes\stdio.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pdclib\includes\stdlib.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pdclib\includes\stdnoreturn.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pdclib\includes\string.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pdclib\includes\threads.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pdclib\includes\time.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pdclib\includes\uchar.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pdclib\includes\wchar.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pdclib\includes\wctype.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

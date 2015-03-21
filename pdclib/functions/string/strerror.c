@@ -10,7 +10,7 @@
 
 #ifndef REGTEST
 
-#include <_PDCLIB_locale.h>
+//#include <_PDCLIB_locale.h>
 
 /* TODO: Doing this via a static array is not the way to do it. */
 char * strerror( int errnum )
@@ -19,10 +19,10 @@ char * strerror( int errnum )
     {
         return (char *)"Unknown error";
     }
-    else
+    /*else
     {
         return _PDCLIB_threadlocale()->_ErrnoStr[errnum];
-    }
+    }*/
 }
 
 #endif

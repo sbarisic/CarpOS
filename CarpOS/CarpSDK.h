@@ -1,5 +1,7 @@
 #pragma once
 
+//#pragma comment(lib, "CarpLib.lib")
+
 //#define __STDC__ 1
 #define NULL 0
 

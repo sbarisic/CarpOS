@@ -6,6 +6,8 @@
    Permission is granted to use, modify, and / or redistribute at will.
 */
 
+#include <string.h>
+
 #ifndef REGTEST
 
 int strcmp( const char * s1, const char * s2 )

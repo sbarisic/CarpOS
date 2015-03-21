@@ -11,7 +11,7 @@
 	ASM _emit (x) & 0xff \
 	ASM _emit (x) >> 8 & 0xff
 
-#define KERNEL_START	0x101000
+#define KERNEL_START	100400
 #define KERNEL_STACK	0x103fff
 #define KERNEL_LENGTH	0x200F
 
@@ -44,4 +44,5 @@ typedef struct {
 	ulong vbe_interface_len;
 } multiboot_info;
 
-void main(ulong Magic, multiboot_info* Info);
+NORETURN void KMain();
+void main(multiboot_info* Info);

@@ -14,7 +14,7 @@ char *strdup(const char *s)
     char* ns = NULL;
     if(s) {
         size_t len = strlen(s) + 1;
-        ns = malloc(len);
+        ns = (char*)malloc(len);
         if(ns)
             strncpy(ns, s, len);
     }

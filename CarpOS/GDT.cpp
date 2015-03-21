@@ -1,5 +1,5 @@
 #include "GDT.h"
-#include "string.h"
+#include <string.h>
 
 void InitGDTDesc(u32 Base, u32 Limit, u8 Access, u8 Other, GDTDesc* Desc) {
 	Desc->lim0_15 = Limit & 0xFFFF;
