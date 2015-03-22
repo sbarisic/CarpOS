@@ -63,27 +63,45 @@ void clear_screen() {
 		clear_line(i);
 }
 
-void print(const char* Str) {
+void scroll() {
 	for (int i = 1; i < 25; i++) {
 		clear_line(i - 1);
 		memcpy(VidMem + 80 * (i - 1), VidMem + 80 * i, sizeof(ushort) * 80);
 	}
 	clear_line(24);
+}
 
-	for (int i = 0; *Str; Str++, i++)
-		VidMem[24 * 80 + i] = (unsigned char)*Str | 0x700;
+void print(const char* Str) {
+	static int i = 0;
+	for (; *Str; Str++, i++) {
+		if (*Str == '\n') {
+			scroll();
+			i = -1;
+		} else 
+			VidMem[24 * 80 + i] = (unsigned char)*Str | 0x700;
+	}
+}
+
+void print(int i) {
+	char buf[256];
+	itoa(i, buf, 16);
+	print(buf);
 }
 
 void main(multiboot_info* Info) {
 	clear_screen();
-	
-	print("Initializing GDT");
+	print("Executing ");
+	print((char*)Info->cmdline);
+	print("\n");
+
+
+	print("Initializing GDT\n");
 	GDTInit();
 
-	print("Initializing Interrupts");
+	print("Initializing Interrupts\n");
 	InterruptsInit();
 
-	print("Hello Carp!");
-	print("How are you, Carp?");
+	print("Hello Carp!\n");
+	print("How are you, Carp?\n");
 	print("Carp.");
 }

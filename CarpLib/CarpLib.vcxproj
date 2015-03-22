@@ -34,6 +34,7 @@
     <ClCompile Include="..\pdclib\functions\string\strspn.c" />
     <ClCompile Include="..\pdclib\functions\string\strstr.c" />
     <ClCompile Include="..\pdclib\functions\string\strtok.c" />
+    <ClCompile Include="itoa.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\pdclib\includes\assert.h" />

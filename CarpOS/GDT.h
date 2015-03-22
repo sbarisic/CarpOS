@@ -1,8 +1,6 @@
 #pragma once
 #include "CarpSDK.h"
 
-#define GDTSIZE 3
-
 // Each define here is for a specific flag in the descriptor.
 // Refer to the intel documentation for a description of what each one does.
 #define SEG_DESCTYPE(x)  ((x) << 0x04) // Descriptor type (0 for system, 1 for code/data)
@@ -45,7 +43,8 @@
 #define GDT_DATA_PL3 SEG_DESCTYPE(1) | SEG_PRES(1) | SEG_SAVL(0) | \
 					 SEG_LONG(0)     | SEG_SIZE(1) | SEG_GRAN(1) | \
 					 SEG_PRIV(3)     | SEG_DATA_RDWR
- 
+
+ #define GDTSIZE 3
 
 typedef struct {
 	ushort limit_low;

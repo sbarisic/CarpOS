@@ -85,6 +85,7 @@ char * strncat( char * _PDCLIB_restrict s1, const char * _PDCLIB_restrict s2, si
 */
 CARPLIB_API int memcmp( const void * s1, const void * s2, size_t n ) _PDCLIB_nothrow;
 
+CARPLIB_API char* itoa(int num, char* str, int base) _PDCLIB_nothrow;
 /* Compare the character arrays s1 and s2.
    Returns 0 if s1 == s2, a negative number if s1 < s2, and a positive number if
    s1 > s2.
