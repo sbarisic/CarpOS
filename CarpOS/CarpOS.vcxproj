@@ -45,7 +45,7 @@
     <GenerateManifest>false</GenerateManifest>
     <CustomBuildAfterTargets>
     </CustomBuildAfterTargets>
-    <IncludePath>E:\Projects\CarpOS\pdclib\internals;E:\Projects\CarpOS\CarpLib;E:\Projects\CarpOS\pdclib\includes;E:\Projects\CarpOS\CarpOS</IncludePath>
+    <IncludePath>E:\Projects\CarpOS\pdclib\internals;E:\Projects\CarpOS\CarpLib;E:\Projects\CarpOS\pdclib\includes;E:\Projects\CarpOS\CarpOS;$(IncludePath)</IncludePath>
     <LibraryPath>E:\Projects\CarpOS\bin</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -54,7 +54,7 @@
     <GenerateManifest>false</GenerateManifest>
     <CustomBuildAfterTargets>
     </CustomBuildAfterTargets>
-    <IncludePath>E:\Projects\CarpOS\pdclib\internals;E:\Projects\CarpOS\CarpLib;E:\Projects\CarpOS\pdclib\includes;E:\Projects\CarpOS\CarpOS</IncludePath>
+    <IncludePath>E:\Projects\CarpOS\pdclib\internals;E:\Projects\CarpOS\CarpLib;E:\Projects\CarpOS\pdclib\includes;E:\Projects\CarpOS\CarpOS;$(IncludePath)</IncludePath>
     <LibraryPath>E:\Projects\CarpOS\bin</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -79,6 +79,7 @@
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <CompileAs>CompileAsCpp</CompileAs>
       <FunctionLevelLinking>true</FunctionLevelLinking>
+      <OmitFramePointers>true</OmitFramePointers>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -136,6 +137,7 @@ echo nasming asm.asm &amp;&amp; nasm -fwin32 asm.asm</Command>
       <MultiProcessorCompilation>false</MultiProcessorCompilation>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <CompileAs>CompileAsCpp</CompileAs>
+      <OmitFramePointers>true</OmitFramePointers>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -177,12 +179,14 @@ echo nasming asm.asm &amp;&amp; nasm -fwin32 asm.asm</Command>
     <ClCompile Include="GDT.cpp" />
     <ClCompile Include="Interrupts.cpp" />
     <ClCompile Include="Kernel.cpp" />
+    <ClCompile Include="RealTimeClock.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CarpSDK.h" />
     <ClInclude Include="GDT.h" />
     <ClInclude Include="Interrupts.h" />
     <ClInclude Include="Kernel.h" />
+    <ClInclude Include="RealTimeClock.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="order.txt" />

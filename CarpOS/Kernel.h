@@ -1,9 +1,9 @@
 #pragma once
 #include "CarpSDK.h"
 
-#define KERNEL_START	100400
-#define KERNEL_STACK	0x103fff
-#define KERNEL_LENGTH	0x200F
+//#define KERNEL_START	100400
+//#define KERNEL_STACK	0x103fff
+//#define KERNEL_LENGTH	0x200F
 
 typedef struct {
 	u32 flags;
@@ -33,6 +33,11 @@ typedef struct {
 	ulong vbe_interface_off;
 	ulong vbe_interface_len;
 } multiboot_info;
+
+void print(const char* Str);
+void print(int i, int base = 16);
+void print_at(int x, int y, const char* Str);
+void print_time();
 
 void KMain();
 void main(multiboot_info* Info);

@@ -1,9 +1,12 @@
 #pragma once
+#include <intrin.h>
 
 //#pragma comment(lib, "CarpLib.lib")
 
 //#define __STDC__ 1
+#ifndef NULL
 #define NULL 0
+#endif
 
 #define _PDCLIB_restrict
 
@@ -29,7 +32,8 @@
 	ASM _emit	((x) >> 16)	& 0xff	\
 	ASM _emit	((x) >> 24)	& 0xff 
 
-#define jmpf(seg, off) db(0xea); dd(off); dw(seg)
+//#define jmpf(seg, off) db(0xea); dd(off); dw(seg)
+#define __iowait() __outbyte(0x80, 0)
 
 typedef unsigned __int8 u8;
 typedef unsigned __int16 u16;
