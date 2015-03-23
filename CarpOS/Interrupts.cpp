@@ -1,5 +1,6 @@
 #include "Kernel.h"
 #include "Interrupts.h"
+#include "Keyboard.h"
 #include <string.h>
 #include <intrin.h>
 
@@ -70,11 +71,7 @@ EXTERN void empty_handler(Regs* R) {
 		if (IRQ == 0) {
 			print_time();
 		} else if (IRQ == 1) {
-			int Scancode = __inbyte(0x60);
-			print("KEYBD: ");
-			print(Scancode);
-			print("\n");
-
+			Keyboard::OnKey(Keyboard::InData());
 		} else {
 			print("IRQ: ");
 			print(IRQ);
