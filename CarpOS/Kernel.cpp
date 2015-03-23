@@ -148,6 +148,5 @@ void main(multiboot_info* Info) {
 	print("Initializing Interrupts\n");
 	InterruptsInit();
 
-	print("\n");
 	ASM int 80;
 }

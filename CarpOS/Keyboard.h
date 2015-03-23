@@ -3,6 +3,7 @@
 
 class Keyboard {
 public:
+	static bool IgnoreInput;
 	static bool CapsLock;
 
 	static void OnKey(byte Scancode);

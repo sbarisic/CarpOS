@@ -43,22 +43,35 @@ byte kbdus[128] = {
 };
 
 bool Keyboard::CapsLock = false;
+bool Keyboard::IgnoreInput = false;
 
 void Keyboard::OnKey(byte Scancode) {
+	if (IgnoreInput)
+		return;
+
 	if (Scancode & 0x80) {
 		//print("RELEASED\n");
 	} else {
-		char Key[2] = { 0, 0 };
-
 		if (Scancode == 0x3A) { // Caps lock
 			CapsLock = !CapsLock;
 			SetLED((CapsLock ? 1 : 0) << 2);
 			return;
 		}
 
-		Key[0] = (CapsLock ? -32 : 0) + kbdus[Scancode];
-		print(Key);
+		char Key = (CapsLock ? -32 : 0) + kbdus[Scancode];
 	}
+}
+
+void Keyboard::SetLED(byte LED) {
+	while (IsBusy());
+	OutData(0xED);
+	InData();
+	OutData(LED);
+	InData();
+}
+
+bool Keyboard::IsBusy() {
+	return InCommand() & 2;
 }
 
 void Keyboard::OutCommand(byte Cmd) {
@@ -75,16 +88,4 @@ byte Keyboard::InCommand() {
 
 byte Keyboard::InData() {
 	return __inbyte(0x60);
-}
-
-void Keyboard::SetLED(byte LED) {
-	while (IsBusy());
-	OutData(0xED);
-	InData();
-	OutData(LED);
-	InData();
-}
-
-bool Keyboard::IsBusy() {
-	return InCommand() & 2;
 }
