@@ -30,6 +30,7 @@ public:
 	static PageDirectory* CurrentDirectory;
 	static PageDirectory* KernelDirectory;
 
+	static void Map(void* Virtual, void* Physical);
 	static void Init(uint MemLen);
 	static void Enable();
 	static void Disable();

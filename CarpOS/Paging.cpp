@@ -5,7 +5,7 @@
 #define INDEX_FROM_BIT(a) (a / (8 * 4))
 #define OFFSET_FROM_BIT(a) (a % (8 * 4))
 
-uint PlacementAddr = 0xB00000;
+uint PlacementAddr = KERNEL_END;
 uint* Frames;
 uint NFrames;
 
@@ -102,6 +102,10 @@ void Paging::Init(uint MemLen) {
 
 	SetPageDir(KernelDirectory);
 	Enable();
+}
+
+void Paging::Map(void* Virtual, void* Physical) {
+
 }
 
 void Paging::SetPageDir(PageDirectory* PageDir) {

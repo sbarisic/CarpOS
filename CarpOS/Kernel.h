@@ -1,9 +1,9 @@
 #pragma once
 #include "CarpSDK.h"
 
-//#define KERNEL_START	100400
-//#define KERNEL_STACK	0x103fff
-//#define KERNEL_LENGTH	0x200F
+#define KERNEL_START 0x101000
+#define KERNEL_LENGTH 0x100000
+#define KERNEL_END (KERNEL_START + KERNEL_LENGTH)
 
 typedef struct {
 	u32 flags;

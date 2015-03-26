@@ -76,7 +76,7 @@ not_multiboot:
 	}
 }
 
-ushort* const VidMem = (ushort*)0xB8000;
+ushort* VidMem = (ushort*)0xB8000;
 
 void clear_line(int l) {
 	memset(VidMem + 80 * l, NULL, sizeof(ushort) * 80);
@@ -149,6 +149,8 @@ void main(multiboot_info* Info) {
 
 	print("Initializing Paging\n");
 	Paging::Init(Info->high_mem * 1024);
+
+	//Paging::Map(VidMem, VidMem - 90);
 	
 	print("DONE!\n");
 }
