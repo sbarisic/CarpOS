@@ -10,6 +10,7 @@
 
 #define _PDCLIB_restrict
 
+#define ALIGN(n) __declspec(align(n))
 #define EXTERN extern "C"
 #define EXPORT EXTERN __declspec(dllexport) // exported from DLL
 #define IMPORT EXTERN __declspec(dllimport) // imported from DLL

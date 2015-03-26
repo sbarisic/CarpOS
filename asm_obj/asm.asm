@@ -36,6 +36,7 @@ _int_handler:
 	pop ds
 	popa
 	add esp, 8
+	sti
 	iret
 
 %macro DEFINE_ISR_NOERROR 1

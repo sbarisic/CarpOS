@@ -1,6 +1,7 @@
 #include "Kernel.h"
 #include "Interrupts.h"
 #include "Keyboard.h"
+#include "Paging.h"
 #include <string.h>
 #include <intrin.h>
 
@@ -50,15 +51,50 @@ void num(int i) {
 
 EXTERN void empty_handler(Regs* R) {
 	if (R->int_no < 32) {
-		if (R->int_no < 20)
-			print(IntNames[R->int_no]);
-		else
-			print(IntNames[20]);
-		print("; INT: ");
-		num(R->int_no);
-		print("; ERR: ");
-		num(R->err_code);
 		print("\n");
+		if (R->int_no == 14) {
+			uint PFAddress;
+			ASM {
+				mov eax, cr2;
+				mov PFAddress, eax;
+			}
+			print("Page fault @ 0x");
+			print(PFAddress);
+			print("; ");
+
+			bool Present = (R->err_code & 0x1);
+			bool RW = (R->err_code & 0x2);
+			bool UserMode = (R->err_code & 0x4);
+			bool Reserved = (R->err_code & 0x8);
+
+			if (UserMode)
+				print("User ");
+			else
+				print("Kernel ");
+
+			print("tried to ");
+			if (RW)
+				print("write ");
+			else
+				print("read ");
+
+			if (Present)
+				print("causing a protection fault");
+			else
+				print("on a non-present page entry");
+
+			print("\n");
+		} else {
+			if (R->int_no < 20)
+				print(IntNames[R->int_no]);
+			else
+				print(IntNames[20]);
+			print("; INT: ");
+			num(R->int_no);
+			print("; ERR: ");
+			num(R->err_code);
+			print("\n");
+		}
 
 		ASM {
 			cli;
@@ -67,6 +103,9 @@ EXTERN void empty_handler(Regs* R) {
 		}
 	} else if (R->int_no >= 32 && R->int_no < 48) {
 		int IRQ = R->int_no - 32;
+		if (IRQ >= 8)
+			__outbyte(PIC2, 0x20);
+		__outbyte(PIC1, 0x20);
 
 		if (IRQ == 0) {
 			print_time();
@@ -77,11 +116,6 @@ EXTERN void empty_handler(Regs* R) {
 			print(IRQ);
 			print("\n");
 		}
-
-		__outbyte(0x20, 0x20);
-		if (IRQ >= 8)
-			__outbyte(0xA0, 0x20);
-
 	} else if (R->int_no == 80) {
 		print("SYSCALL\n");
 	} else {
@@ -92,16 +126,38 @@ EXTERN void empty_handler(Regs* R) {
 }
 
 void IRQRemap() {
-	__outbyte(0x20, 0x11);
-	__outbyte(0xA0, 0x11);
-	__outbyte(0x21, 0x20);
-	__outbyte(0xA1, 0x28);
-	__outbyte(0x21, 0x04);
-	__outbyte(0xA1, 0x02);
-	__outbyte(0x21, 0x01);
-	__outbyte(0xA1, 0x01);
-	__outbyte(0x21, 0x0);
-	__outbyte(0xA1, 0x0);
+	__outbyte(PIC1, 0x11);
+	__outbyte(PIC2, 0x11);
+	__outbyte(PIC1_DATA, 0x20);
+	__outbyte(PIC2_DATA, 0x28);
+	__outbyte(PIC1_DATA, 0x04);
+	__outbyte(PIC2_DATA, 0x02);
+	__outbyte(PIC1_DATA, 0x01);
+	__outbyte(PIC2_DATA, 0x01);
+	__outbyte(PIC1_DATA, 0x0);
+	__outbyte(PIC2_DATA, 0x0);
+}
+
+void IRQSetMask(byte IRQLine) {
+	ushort Port;
+	if (IRQLine < 8)
+		Port = PIC1_DATA;
+	else {
+		Port = PIC2_DATA;
+		IRQLine -= 8;
+	}
+	__outbyte(Port, __inbyte(Port) | (1 << IRQLine));
+}
+
+void IRQClearMask(byte IRQLine) {
+	ushort Port;
+	if (IRQLine < 8)
+		Port = PIC1_DATA;
+	else {
+		Port = PIC2_DATA;
+		IRQLine -= 8;
+	}
+	__outbyte(Port, __inbyte(Port) & ~(1 << IRQLine));
 }
 
 void InterruptsInit() {
@@ -112,7 +168,8 @@ void InterruptsInit() {
 #define DEFAULT_ISR(n) IDTInitDesc(0x8, &isr_##n, INTGATE, n)
 	// Default
 	DEFAULT_ISR(0); DEFAULT_ISR(1); DEFAULT_ISR(2); DEFAULT_ISR(3);
-	DEFAULT_ISR(4); DEFAULT_ISR(5); DEFAULT_ISR(6); DEFAULT_ISR(8);
+	DEFAULT_ISR(4); DEFAULT_ISR(5); DEFAULT_ISR(6); DEFAULT_ISR(7);
+	DEFAULT_ISR(8);
 	DEFAULT_ISR(9); DEFAULT_ISR(10); DEFAULT_ISR(11); DEFAULT_ISR(12);
 	DEFAULT_ISR(13); DEFAULT_ISR(14); DEFAULT_ISR(15); DEFAULT_ISR(16);
 	DEFAULT_ISR(17); DEFAULT_ISR(18); DEFAULT_ISR(19); DEFAULT_ISR(20);
@@ -129,7 +186,8 @@ void InterruptsInit() {
 #undef DEFAULT_ISR
 
 	IRQRemap();
-
+	for (int i = 0; i < 16; i++)
+		IRQClearMask(i);
 	__outbyte(0x70, (1 << 7) | (0x0));
 
 	ASM {

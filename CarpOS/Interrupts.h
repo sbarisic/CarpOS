@@ -23,6 +23,13 @@ typedef struct {
 	unsigned int eip, cs, eflags, useresp, ss; // pushed by the processor automatically
 } Regs;
 
+#define PIC1 0x20
+#define PIC2 0xA0
+#define PIC1_COMMAND PIC1
+#define PIC1_DATA (PIC1 + 1)
+#define PIC2_COMMAND PIC2
+#define PIC2_DATA (PIC2 + 1)
+
 #define INTGATE 0x8E
 #define TRAPGATE 0xEF0
 
@@ -30,7 +37,7 @@ typedef struct {
 
 // Default crap
 ISR(0) ISR(1) ISR(2) ISR(3)
-ISR(4) ISR(5) ISR(6) ISR(8)
+ISR(4) ISR(5) ISR(6) ISR(7) ISR(8)
 ISR(9) ISR(10) ISR(11) ISR(12)
 ISR(13) ISR(14) ISR(15) ISR(16)
 ISR(17) ISR(18) ISR(19) ISR(20)

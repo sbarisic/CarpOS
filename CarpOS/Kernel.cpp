@@ -3,6 +3,7 @@
 #include "GDT.h"
 #include "Interrupts.h"
 #include "RealTimeClock.h"
+#include "Paging.h"
 
 #include <string.h>
 #include <intrin.h>
@@ -117,6 +118,8 @@ void print(const char* Str) {
 		} else 
 			VidMem[24 * 80 + i] = (unsigned char)*Str | 0x700;
 	}
+
+	__iowait();
 }
 
 void print(int i, int base) {
@@ -132,15 +135,11 @@ void main(multiboot_info* Info) {
 	print("\n");
 	print("Mem: ");
 	print(Info->high_mem / 1024, 10);
-	print("mb\n");
-	print("Executing ");
+	print("mb; ");
+	print(Info->high_mem * 1024, 10);
+	print("b\nExecuting ");
 	print((char*)Info->cmdline);
 	print("\n");
-	/*print("multiboot_entry @ 0x");
-	print((int)&multiboot_entry);
-	print("\n");*/
-
-	//print_at(62, 0, "<INSERT_TIME_HERE>");
 
 	print("Initializing GDT\n");
 	GDTInit();
@@ -148,5 +147,8 @@ void main(multiboot_info* Info) {
 	print("Initializing Interrupts\n");
 	InterruptsInit();
 
-	ASM int 80;
+	print("Initializing Paging\n");
+	Paging::Init(Info->high_mem * 1024);
+	
+	print("DONE!\n");
 }
