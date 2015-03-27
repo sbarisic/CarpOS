@@ -20,6 +20,7 @@
 
 // Assembler crap
 #define ASM __asm
+#define BREAKPOINT ASM xchg bx, bx
 
 #define db(x) ASM _emit (x)
 

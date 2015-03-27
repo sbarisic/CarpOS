@@ -42,25 +42,22 @@ void IDTInitDesc(ushort Select, void* Handler, byte Type, int IDTN) {
 	Entry->offset16_31 = (ushort)((Offset & 0xFFFF0000) >> 16);
 }
 
-void num(int i) {
-	print("0x");
-	print(i);
-	print(" - ");
-	print(i, 10);
-}
-
 EXTERN void empty_handler(Regs* R) {
 	if (R->int_no < 32) {
-		print("\n");
+		Kernel::Print("\n");
+		if (R->int_no < 20)
+				Kernel::Print(IntNames[R->int_no]);
+			else
+				Kernel::Print(IntNames[20]);
+		Kernel::Print("; INT ", R->int_no, " ");
+
 		if (R->int_no == 14) {
 			uint PFAddress;
 			ASM {
 				mov eax, cr2;
 				mov PFAddress, eax;
 			}
-			print("Page fault @ 0x");
-			print(PFAddress);
-			print("; ");
+			Kernel::Print("@ ", PFAddress, ";\n");
 
 			bool Present = (R->err_code & 0x1);
 			bool RW = (R->err_code & 0x2);
@@ -68,32 +65,21 @@ EXTERN void empty_handler(Regs* R) {
 			bool Reserved = (R->err_code & 0x8);
 
 			if (UserMode)
-				print("User ");
+				Kernel::Print("User ");
 			else
-				print("Kernel ");
+				Kernel::Print("Kernel ");
 
-			print("tried to ");
+			Kernel::Print("tried to ");
 			if (RW)
-				print("write ");
+				Kernel::Print("write ");
 			else
-				print("read ");
+				Kernel::Print("read ");
 
 			if (Present)
-				print("causing a protection fault");
+				Kernel::Print("causing a protection fault");
 			else
-				print("on a non-present page entry");
-
-			print("\n");
-		} else {
-			if (R->int_no < 20)
-				print(IntNames[R->int_no]);
-			else
-				print(IntNames[20]);
-			print("; INT: ");
-			num(R->int_no);
-			print("; ERR: ");
-			num(R->err_code);
-			print("\n");
+				Kernel::Print("on a non-present page entry");
+			Kernel::Print("\n");
 		}
 
 		ASM {
@@ -108,20 +94,16 @@ EXTERN void empty_handler(Regs* R) {
 		__outbyte(PIC1, 0x20);
 
 		if (IRQ == 0) {
-			print_time();
+			Kernel::PrintTime();
 		} else if (IRQ == 1) {
 			Keyboard::OnKey(Keyboard::InData());
 		} else {
-			print("IRQ: ");
-			print(IRQ);
-			print("\n");
+			Kernel::Print("IRQ: ", IRQ, "\n");
 		}
 	} else if (R->int_no == 80) {
-		print("SYSCALL\n");
+		Kernel::Print("SYSCALL\n");
 	} else {
-		print("INT: ");
-		num(R->int_no);
-		print("\n");
+		Kernel::Print("INT: ", R->int_no, "\n");
 	}
 }
 

@@ -34,10 +34,54 @@ typedef struct {
 	ulong vbe_interface_len;
 } multiboot_info;
 
-void print(const char* Str);
-void print(int i, int base = 16);
-void print_at(int x, int y, const char* Str);
-void print_time();
+class CPU {
+public:
+	static void Init();
+
+	static char CPUName[0x40];
+	static ushort* VideoMemory;
+};	
+
+class Kernel {
+public:
+	static void Init(multiboot_info* Info);
+
+	template<typename T> static void Print(T A);
+
+	template<typename TA, typename TB>
+	static void Print(TA A, TB B) {
+		Print(A); Print(B);
+	}
+
+	template<typename TA, typename TB, typename TC>
+	static void Print(TA A, TB B, TC C) {
+		Print(A); Print(B); Print(C);
+	}
+
+	template<typename TA, typename TB, typename TC, typename TD>
+	static void Print(TA A, TB B, TC C, TD D) {
+		Print(A); Print(B); Print(C); Print(D);
+	}
+
+	template<typename TA, typename TB, typename TC, typename TD, typename TE>
+	static void Print(TA A, TB B, TC C, TD D, TE E) {
+		Print(A); Print(B); Print(C); Print(D); Print(E);
+	}
+
+	template<typename TA, typename TB, typename TC, typename TD, typename TE, typename TF>
+	static void Print(TA A, TB B, TC C, TD D, TE E, TF F) {
+		Print(A); Print(B); Print(C); Print(D); Print(E); Print(F);
+	}
+
+	static void Scroll();
+	static void ClearLine(int L);
+	static void ClearScreen();
+	static void PrintAt(int X, int Y, const char* Str);
+	static void PrintTime();
+};
+
+/*void print(const char* Str);
+void print(int i, int base = 16);*/
 
 void KMain();
 void main(multiboot_info* Info);

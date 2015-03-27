@@ -8,26 +8,6 @@
 #include <string.h>
 #include <intrin.h>
 
-const char* cpuname() {
-	char CPUBrand[0x40] = { 0 };
-
-	int CPUInfo[4] = { -1 };
-	__cpuid(CPUInfo, 0x80000000);
-	uint NExIDs = CPUInfo[0];
-
-	for (uint i = 0x80000000; i <= NExIDs; ++i) {
-		__cpuid(CPUInfo, i);
-		if  (i == 0x80000002)
-			memcpy(CPUBrand, CPUInfo, sizeof(CPUInfo));
-		else if( i == 0x80000003 )
-			memcpy(CPUBrand + 16, CPUInfo, sizeof(CPUInfo));
-		else if( i == 0x80000004 )
-			memcpy(CPUBrand + 32, CPUInfo, sizeof(CPUInfo));
-	}
-
-	return CPUBrand;
-}
-
 EXTERN void multiboot_entry() {
 #define FLAGS ((1 << 16) | (1 << 2) | (1 << 1) | (1 << 0))
 #define LOAD_ADDR (0x00101000)
@@ -48,6 +28,7 @@ EXTERN void multiboot_entry() {
 		dd(80); // width
 		dd(25); // height
 		dd(0); // depth
+
 		call KMain;
 		ret;
 	}
@@ -66,7 +47,7 @@ void KMain() {
 		push ecx;
 		popf;
 		push ebx;
-		call main;
+		call Kernel::Init;
 
 		/*cli;
 		hlt;*/
@@ -76,50 +57,42 @@ not_multiboot:
 	}
 }
 
-ushort* VidMem = (ushort*)0xB8000;
+ushort* CPU::VideoMemory = NULL;
+char CPU::CPUName[0x40] = { 0 };
 
-void clear_line(int l) {
-	memset(VidMem + 80 * l, NULL, sizeof(ushort) * 80);
-}
+void CPU::Init() {
+	int CPUInfo[4] = { -1 };
+	__cpuid(CPUInfo, 0x80000000);
+	uint NexIDs = CPUInfo[0];
 
-void clear_screen() {
-	for (int i = 0; i < 25; i++)
-		clear_line(i);
-}
-
-void print_time() {
-	print_at(72, 0, RTC::GetTime());
-}
-
-void scroll() {
-	for (int i = 1; i < 25; i++) {
-		clear_line(i - 1);
-		memcpy(VidMem + 80 * (i - 1), VidMem + 80 * i, sizeof(ushort) * 80);
+	for (uint i = 0x80000000; i <= NexIDs; ++i) {
+		__cpuid(CPUInfo, i);
+		if  (i == 0x80000002)
+			memcpy(CPUName, CPUInfo, sizeof(CPUInfo));
+		else if(i == 0x80000003)
+			memcpy(CPUName + 16, CPUInfo, sizeof(CPUInfo));
+		else if(i == 0x80000004)
+			memcpy(CPUName + 32, CPUInfo, sizeof(CPUInfo));
 	}
-	clear_line(24);
-}
 
-void print_at(int x, int y, const char* Str) {
-	for (int i = x; *Str; Str++, i++) {
-		if (*Str == '\n') {
-			scroll();
-			i = -1;
-		} else 
-			VidMem[24 * y + i] = (unsigned char)*Str | 0x700;
-	}
+	int SpaceIdx = 0;
+	while (CPUName[SpaceIdx] == ' ')
+		SpaceIdx++;
+
+	CPU::VideoMemory = (ushort*)0xB8000;
 }
 
 void print(const char* Str) {
+	__outbytestring(0xE9, (byte*)Str, strlen(Str));
+
 	static int i = 0;
 	for (; *Str; Str++, i++) {
 		if (*Str == '\n') {
-			scroll();
+			Kernel::Scroll();
 			i = -1;
-		} else 
-			VidMem[24 * 80 + i] = (unsigned char)*Str | 0x700;
+		} else
+			CPU::VideoMemory[24 * 80 + i] = (unsigned char)*Str | 0x700;
 	}
-
-	__iowait();
 }
 
 void print(int i, int base) {
@@ -128,29 +101,78 @@ void print(int i, int base) {
 	print(buf);
 }
 
-void main(multiboot_info* Info) {
-	clear_screen();
-	print("CPU: ");
-	print(cpuname());
-	print("\n");
-	print("Mem: ");
-	print(Info->high_mem / 1024, 10);
-	print("mb; ");
-	print(Info->high_mem * 1024, 10);
-	print("b\nExecuting ");
-	print((char*)Info->cmdline);
-	print("\n");
+void Kernel::ClearLine(int l) {
+	memset(CPU::VideoMemory + 80 * l, NULL, sizeof(ushort) * 80);
+}
 
-	print("Initializing GDT\n");
+void Kernel::ClearScreen() {
+	for (int i = 0; i < 25; i++)
+		ClearLine(i);
+}
+
+void Kernel::PrintTime() {
+	PrintAt(72, 0, RTC::GetTime());
+}
+
+void Kernel::Scroll() {
+	for (int i = 1; i < 25; i++) {
+		ClearLine(i - 1);
+		memcpy(CPU::VideoMemory + 80 * (i - 1), CPU::VideoMemory + 80 * i, sizeof(ushort) * 80);
+	}
+	ClearLine(24);
+}
+
+void Kernel::PrintAt(int x, int y, const char* Str) {
+	for (int i = x; *Str; Str++, i++) {
+		if (*Str == '\n') {
+			Scroll();
+			i = -1;
+		} else 
+			CPU::VideoMemory[24 * y + i] = (unsigned char)*Str | 0x700;
+	}
+}
+
+template<>
+void Kernel::Print(int A) {
+	print("(0x");
+	print(A, 16);
+	print(" - ");
+	print(A, 10);
+	print(")");
+}
+
+template<>
+void Kernel::Print(uint A) {
+	Print((int)A);
+}
+
+template<>
+void Kernel::Print(const char* A) {
+	print(A);
+}
+
+template<>
+void Kernel::Print(char* A) {
+	print((const char*)A);
+}
+
+void Kernel::Init(multiboot_info* Info) {
+	CPU::Init();
+	ClearScreen();
+
+	Print("CPU: ", CPU::CPUName, "\n");
+	Print("Mem: ", Info->high_mem / 1024, "mb\n");
+	Print((char*)Info->cmdline, "\n");
+
+	Print("Initializing GDT\n");
 	GDTInit();
 
-	print("Initializing Interrupts\n");
+	Print("Initializing Interrupts\n");
 	InterruptsInit();
 
-	print("Initializing Paging\n");
+	Print("Initializing Paging\n");
 	Paging::Init(Info->high_mem * 1024);
-
-	//Paging::Map(VidMem, VidMem - 90);
 	
-	print("DONE!\n");
+	CPU::VideoMemory = (ushort*)Paging::Map(0xABC000, (uint)CPU::VideoMemory, (80 * 25 * sizeof(short) * 8) / 4096);
+	Print("DONE!\n");
 }

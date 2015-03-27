@@ -30,7 +30,9 @@ public:
 	static PageDirectory* CurrentDirectory;
 	static PageDirectory* KernelDirectory;
 
-	static void Map(void* Virtual, void* Physical);
+	static uint Align(uint Addr, uint* Remain = NULL);
+
+	static uint Map(uint Virtual, uint Physical, uint Pages = 1, PageDirectory* Dir = NULL);
 	static void Init(uint MemLen);
 	static void Enable();
 	static void Disable();

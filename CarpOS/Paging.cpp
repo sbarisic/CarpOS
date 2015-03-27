@@ -46,11 +46,12 @@ uint FirstFrame() {
 	return -1;
 }
 
-void AllocFrame(Page* Pg, bool IsKernel, bool IsWritable) {
+void AllocFrame(Page* Pg, bool IsKernel, bool IsWritable, uint Idx = -1) {
 	if (!Pg || Pg->Frame != 0)
 		return;
 
-	uint Idx = FirstFrame();
+	if (Idx == (uint)-1)
+		Idx = FirstFrame();
 	if (Idx == (uint)-1)
 		ASM int 1;
 	SetFrame(Idx * 0x1000);
@@ -104,8 +105,35 @@ void Paging::Init(uint MemLen) {
 	Enable();
 }
 
-void Paging::Map(void* Virtual, void* Physical) {
+uint Paging::Align(uint Addr, uint* Remain) {
+#define ALIGN_BYTES (1 << 10)
+	if (Remain)
+		*Remain = Addr % ALIGN_BYTES;
+	//return ((Addr + ALIGN_BYTES) & ~(ALIGN_BYTES - 1)) - ALIGN_BYTES;
+	return (Addr / ALIGN_BYTES) * ALIGN_BYTES;
+#undef ALIGN_BYTES
+}
 
+uint Paging::Map(uint Virtual, uint Physical, uint Pages, PageDirectory* Dir) {
+	Disable();
+
+	if (Dir == NULL)
+		Dir = CurrentDirectory;
+
+	uint Ret = Virtual = Align(Virtual);
+	Physical = Align(Physical);
+
+	for (int i = 0; i <= Pages; i++) {
+		Page* Pg = GetPage(Virtual, true, Dir);
+		Dir->TablesPhysical[Virtual / 1024] = Physical | 0x7;
+		AllocFrame(Pg, false, false, Physical / 4096);
+
+		Virtual += 4096;
+		Physical += 4096;
+	}
+
+	Enable();
+	return Ret;
 }
 
 void Paging::SetPageDir(PageDirectory* PageDir) {
