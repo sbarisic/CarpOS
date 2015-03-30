@@ -1,7 +1,0 @@
-default 0
-timeout 0
-
-title CarpOS
-kernel /CarpOS.exe
-module /carp_boot.carpic
-module /carp_error.carpic
