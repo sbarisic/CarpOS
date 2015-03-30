@@ -4,15 +4,23 @@
 #include "Interrupts.h"
 #include "RealTimeClock.h"
 #include "Paging.h"
+#include "Memory.h"
+#include "Video.h"
 
 #include <string.h>
 #include <intrin.h>
 
-EXTERN void multiboot_entry() {
-#define FLAGS ((1 << 16) | (1 << 2) | (1 << 1) | (1 << 0))
 #define LOAD_ADDR (0x00101000)
-#define DATA_SIZE (1024 * 64)
-#define BSS_SIZE (1024 * 64)
+#define DATA_SIZE (1024 * 50)
+#define BSS_SIZE (1024 * 500)
+#define KERNEL_START LOAD_ADDR
+#define KERNEL_LENGTH (DATA_SIZE + BSS_SIZE)
+
+//#define KERNEL_END (KERNEL_START + KERNEL_LENGTH)
+#define KERNEL_END 0xA00000
+
+EXTERN void multiboot_entry() {
+#define FLAGS ((1 << 16) /*| (1 << 3)*/ | (1 << 2) | (1 << 1) | (1 << 0))
 
 	ASM {
 		//multiboot_header:
@@ -28,32 +36,36 @@ EXTERN void multiboot_entry() {
 		dd(80); // width
 		dd(25); // height
 		dd(0); // depth
+		ENTRY:
 
-		call KMain;
-		ret;
+		jmp KMain;
 	}
 }
 
-void KMain() {
-	void* StackPtr = (void*)(LOAD_ADDR + BSS_SIZE + DATA_SIZE);
+multiboot_info* Info;
+uint StackSize;
+void* StackPtr;
+//uint KERNEL_END;
 
+NAKED NORETURN void KMain() {
 	ASM {
 		mov edx, multiboot_entry;
 		mov edx, 0x2BADB002;
 		cmp eax, edx;
 		jne not_multiboot;
-		mov esp, [StackPtr];
-		xor ecx, ecx;
-		push ecx;
-		popf;
-		push ebx;
-		call Kernel::Init;
+		cli;
+		mov Info, ebx;
+		mov Memory::PlacementAddr, KERNEL_END;
+		mov StackSize, KB(10);
+	}
 
-		/*cli;
-		hlt;*/
-		jmp $;
+	StackPtr = (void*)((uint)Memory::KAlloc(StackSize) + StackSize);
 
+	ASM {
+		mov esp, StackPtr;
+		jmp Kernel::Init;
 not_multiboot:
+		ret;
 	}
 }
 
@@ -133,6 +145,14 @@ void Kernel::PrintAt(int x, int y, const char* Str) {
 }
 
 template<>
+void Kernel::Print(bool B) {
+	if (B)
+		print("true");
+	else
+		print("false");
+}
+
+template<>
 void Kernel::Print(int A) {
 	print("(0x");
 	print(A, 16);
@@ -156,23 +176,47 @@ void Kernel::Print(char* A) {
 	print((const char*)A);
 }
 
-void Kernel::Init(multiboot_info* Info) {
+NAKED NORETURN void Kernel::Init() {
 	CPU::Init();
 	ClearScreen();
 
 	Print("CPU: ", CPU::CPUName, "\n");
-	Print("Mem: ", Info->high_mem / 1024, "mb\n");
+	Print("Mem lower: ", Info->low_mem, "kb; ", Info->low_mem / 1024, "mb\n");
+	Print("Mem upper: ", Info->high_mem, "kb; ", Info->high_mem / 1024, "mb\n");
 	Print((char*)Info->cmdline, "\n");
 
 	Print("Initializing GDT\n");
 	GDTInit();
-
+	
 	Print("Initializing Interrupts\n");
 	InterruptsInit();
 
+	Print("Initializing Video\n");
+	Video::Init();
+
+	multiboot_module* Mods;
+	Mods = (multiboot_module*)Info->mods_addr;
+	memcpy(Video::Mem, (void*)(Mods[0].mod_start), 800 * 600 * 4);
+
 	Print("Initializing Paging\n");
 	Paging::Init(Info->high_mem * 1024);
-	
-	CPU::VideoMemory = (ushort*)Paging::Map(0xABC000, (uint)CPU::VideoMemory, (80 * 25 * sizeof(short) * 8) / 4096);
-	Print("DONE!\n");
+
+	Print("Initializing Memory\n");
+	//Memory::Init((void*)(KERNEL_END + StackSize));
+	Memory::Init((void*)Memory::PlacementAddr);
+
+	Print("Done!\n");
+	Terminate();
+}
+
+void Kernel::CarpScreenOfDeath() {
+	Paging::Disable();
+	memcpy(Video::Mem, (void*)(((multiboot_module*)Info->mods_addr)[1].mod_start), 800 * 600 * 4);
+	Terminate();
+}
+
+void Kernel::Terminate() {
+	ASM {
+		jmp $;
+	}
 }

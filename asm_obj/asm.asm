@@ -110,6 +110,6 @@ DEFINE_ISR_NOERROR 47
 DEFINE_ISR_NOERROR 80 ; SYSCALLS
 
 section .data
-	resb 1024 * 64
+	resb 1024 * 50
 section .bss
-	resb 1024 * 64
+	resb 1024 * 50

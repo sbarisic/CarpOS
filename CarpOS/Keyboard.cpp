@@ -58,7 +58,7 @@ void Keyboard::OnKey(byte Scancode) {
 			return;
 		}
 
-		char Key = (CapsLock ? -32 : 0) + kbdus[Scancode];
+		//char Key = (CapsLock ? -32 : 0) + kbdus[Scancode];
 	}
 }
 
@@ -71,7 +71,7 @@ void Keyboard::SetLED(byte LED) {
 }
 
 bool Keyboard::IsBusy() {
-	return InCommand() & 2;
+	return (InCommand() & 2) != 0;
 }
 
 void Keyboard::OutCommand(byte Cmd) {

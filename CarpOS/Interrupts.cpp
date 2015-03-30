@@ -59,10 +59,10 @@ EXTERN void empty_handler(Regs* R) {
 			}
 			Kernel::Print("@ ", PFAddress, ";\n");
 
-			bool Present = (R->err_code & 0x1);
-			bool RW = (R->err_code & 0x2);
-			bool UserMode = (R->err_code & 0x4);
-			bool Reserved = (R->err_code & 0x8);
+			bool Present = (R->err_code & 0x1) != 0;
+			bool RW = (R->err_code & 0x2) != 0;
+			bool UserMode = (R->err_code & 0x4) != 0;
+			//bool Reserved = (R->err_code & 0x8);
 
 			if (UserMode)
 				Kernel::Print("User ");
@@ -82,11 +82,12 @@ EXTERN void empty_handler(Regs* R) {
 			Kernel::Print("\n");
 		}
 
-		ASM {
+		Kernel::CarpScreenOfDeath();
+		/*ASM {
 			cli;
 			hlt;
 			jmp $;
-		}
+		}*/
 	} else if (R->int_no >= 32 && R->int_no < 48) {
 		int IRQ = R->int_no - 32;
 		if (IRQ >= 8)
@@ -168,7 +169,7 @@ void InterruptsInit() {
 #undef DEFAULT_ISR
 
 	IRQRemap();
-	for (int i = 0; i < 16; i++)
+	for (byte i = 0; i < 16; i++)
 		IRQClearMask(i);
 	__outbyte(0x70, (1 << 7) | (0x0));
 

@@ -17,6 +17,9 @@
 #define NAKED __declspec(naked) // no prolog or epilog code added
 #define NORETURN __declspec(noreturn)
 
+#define KB(n) (1024 * (n))
+#define MB(n) (1024 * 1024 * (n))
+
 
 // Assembler crap
 #define ASM __asm

@@ -1,9 +1,34 @@
 #pragma once
 #include "CarpSDK.h"
 
-#define KERNEL_START 0x101000
-#define KERNEL_LENGTH 0x100000
-#define KERNEL_END (KERNEL_START + KERNEL_LENGTH)
+typedef struct {
+	ushort attributes;
+	byte winA, winB;
+	ushort granularity;
+	ushort winsize;
+	ushort segmentA, segmentB;
+	uint realFctPtr;
+	ushort pitch;
+	ushort Xres, Yres;
+	byte Wchar, Ychar, planes, bpp, banks;
+	byte memory_model, bank_size, image_pages;
+	byte reserved0;
+	byte red_mask, red_position;
+	byte green_mask, green_position;
+	byte blue_mask, blue_position;
+	byte rsv_mask, rsv_position;
+	byte directcolor_attributes;
+	uint physbase;
+	uint reserved1;
+	ushort reserved2;
+} vbe_info_t;
+
+typedef struct {
+	uint mod_start;
+	uint mod_end;
+	uint cmdline;
+	uint pad;
+} multiboot_module;
 
 typedef struct {
 	u32 flags;
@@ -44,7 +69,9 @@ public:
 
 class Kernel {
 public:
-	static void Init(multiboot_info* Info);
+	NORETURN static void Init();
+	static void CarpScreenOfDeath();
+	static void Terminate();
 
 	template<typename T> static void Print(T A);
 
@@ -83,5 +110,6 @@ public:
 /*void print(const char* Str);
 void print(int i, int base = 16);*/
 
-void KMain();
+NORETURN void KMain();
 void main(multiboot_info* Info);
+extern multiboot_info* Info;

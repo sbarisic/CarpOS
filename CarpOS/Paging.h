@@ -23,7 +23,7 @@ typedef struct {
 	uint Physical;
 } PageDirectory;
 
-
+#define RequiredPagingSize(n) n
 
 class Paging {
 public:
@@ -33,9 +33,11 @@ public:
 	static uint Align(uint Addr, uint* Remain = NULL);
 
 	static uint Map(uint Virtual, uint Physical, uint Pages = 1, PageDirectory* Dir = NULL);
+	static uint GetRequiredSize();
 	static void Init(uint MemLen);
 	static void Enable();
 	static void Disable();
+	static void FlushTLB();
 
 	static void SetPageDir(PageDirectory* PageDir);
 

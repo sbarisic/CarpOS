@@ -180,8 +180,10 @@ echo nasming asm.asm &amp;&amp; nasm -fwin32 asm.asm</Command>
     <ClCompile Include="Interrupts.cpp" />
     <ClCompile Include="Kernel.cpp" />
     <ClCompile Include="Keyboard.cpp" />
+    <ClCompile Include="Memory.cpp" />
     <ClCompile Include="Paging.cpp" />
     <ClCompile Include="RealTimeClock.cpp" />
+    <ClCompile Include="Video.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CarpSDK.h" />
@@ -189,8 +191,10 @@ echo nasming asm.asm &amp;&amp; nasm -fwin32 asm.asm</Command>
     <ClInclude Include="Interrupts.h" />
     <ClInclude Include="Kernel.h" />
     <ClInclude Include="Keyboard.h" />
+    <ClInclude Include="Memory.h" />
     <ClInclude Include="Paging.h" />
     <ClInclude Include="RealTimeClock.h" />
+    <ClInclude Include="Video.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="order.txt" />

@@ -1,25 +1,14 @@
 #include "Paging.h"
 #include "Kernel.h"
+#include "Memory.h"
 #include <string.h>
 
 #define INDEX_FROM_BIT(a) (a / (8 * 4))
 #define OFFSET_FROM_BIT(a) (a % (8 * 4))
 
-uint PlacementAddr = KERNEL_END;
+
 uint* Frames;
 uint NFrames;
-
-uint page_alloc(uint Size, bool Align = false, uint* Phys = NULL) {
-	if (Align && (PlacementAddr & 0xFFFFF000)) {
-		PlacementAddr &= 0xFFFFF000;
-		PlacementAddr += 0x1000;
-	}
-	if (Phys)
-		*Phys = PlacementAddr;
-	uint Tmp = PlacementAddr;
-	PlacementAddr += Size;
-	return Tmp;
-}
 
 void SetFrame(uint FrameAddr) {
 	uint Frame = FrameAddr / 0x1000;
@@ -43,7 +32,7 @@ uint FirstFrame() {
 					return i * 4 * 8 + j;
 			}
 	}
-	return -1;
+	return (uint)-1;
 }
 
 void AllocFrame(Page* Pg, bool IsKernel, bool IsWritable, uint Idx = -1) {
@@ -76,7 +65,7 @@ Page* GetPage(uint Addr, bool Make, PageDirectory* Dir) {
 		return &Dir->Tables[TableIdx]->Pages[Addr % 1024];
 	else if (Make) {
 		uint Tmp;
-		Dir->Tables[TableIdx] = (PageTable*)page_alloc(sizeof(PageTable), true, &Tmp);
+		Dir->Tables[TableIdx] = (PageTable*)Memory::KAlloc(sizeof(PageTable), true, &Tmp);
 		memset(Dir->Tables[TableIdx], NULL, 0x1000);
 		Dir->TablesPhysical[TableIdx] = Tmp | 0x7;
 		return &Dir->Tables[TableIdx]->Pages[Addr % 1024];
@@ -87,17 +76,24 @@ Page* GetPage(uint Addr, bool Make, PageDirectory* Dir) {
 PageDirectory* Paging::CurrentDirectory = NULL;
 PageDirectory* Paging::KernelDirectory = NULL;
 
+uint Paging::GetRequiredSize() {
+	uint Size = 0;
+
+	return Size;
+}
+
 void Paging::Init(uint MemLen) {
 	NFrames = MemLen / 0x1000;
-	Frames = (uint*)page_alloc(INDEX_FROM_BIT(NFrames));
+	Frames = (uint*)Memory::KAlloc(INDEX_FROM_BIT(NFrames));
 	memset(Frames, 0, INDEX_FROM_BIT(NFrames));
 
-	KernelDirectory = (PageDirectory*)page_alloc(sizeof(PageDirectory), true);
+	KernelDirectory = (PageDirectory*)Memory::KAlloc(sizeof(PageDirectory), true);
 	memset(KernelDirectory, 0, sizeof(PageDirectory));
 
-	int i = 0;
-	while (i < PlacementAddr) {
-		AllocFrame(GetPage(i, true, KernelDirectory), false, false);
+	uint i = 0;
+	while (i < Memory::PlacementAddr) {
+		//while (i < MemLen) {
+		AllocFrame(GetPage(i, true, KernelDirectory), true, false);
 		i += 0x1000;
 	}
 
@@ -123,7 +119,7 @@ uint Paging::Map(uint Virtual, uint Physical, uint Pages, PageDirectory* Dir) {
 	uint Ret = Virtual = Align(Virtual);
 	Physical = Align(Physical);
 
-	for (int i = 0; i <= Pages; i++) {
+	for (uint i = 0; i <= Pages; i++) {
 		Page* Pg = GetPage(Virtual, true, Dir);
 		Dir->TablesPhysical[Virtual / 1024] = Physical | 0x7;
 		AllocFrame(Pg, false, false, Physical / 4096);
@@ -141,6 +137,13 @@ void Paging::SetPageDir(PageDirectory* PageDir) {
 	void* Phys = &PageDir->TablesPhysical;
 	ASM {
 		mov eax, Phys;
+		mov cr3, eax;
+	}
+}
+
+void Paging::FlushTLB() {
+	ASM {
+		mov eax, cr3;
 		mov cr3, eax;
 	}
 }

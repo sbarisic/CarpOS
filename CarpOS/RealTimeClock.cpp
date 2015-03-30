@@ -15,7 +15,7 @@ int get_update_in_progress_flag() {
 }
 
 unsigned char get_RTC_register(int reg) {
-	__outbyte(cmos_address, reg);
+	__outbyte(cmos_address, (byte)reg);
 	return __inbyte(cmos_data);
 }
 
@@ -27,7 +27,7 @@ byte RTC::Second = 0;
 uint RTC::Year = 0;
 
 void RTC::Update() {  
-	unsigned char century;
+	unsigned char century = 0;
 	unsigned char last_Second;
 	unsigned char last_Minute;
 	unsigned char last_Hour;
@@ -57,7 +57,7 @@ void RTC::Update() {
 		last_Hour = Hour;
 		last_Day = Day;
 		last_Month = Month;
-		last_Year = Year;
+		last_Year = (byte)Year;
 		last_century = century;
 
 		while (get_update_in_progress_flag());           // Make sure an update isn't in progress
