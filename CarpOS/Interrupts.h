@@ -54,4 +54,5 @@ ISR(44) ISR(45) ISR(46) ISR(47)
 // Syscall
 ISR(80)
 
+extern uint TickCount;
 void InterruptsInit();

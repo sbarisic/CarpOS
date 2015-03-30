@@ -26,25 +26,27 @@ void Video::Init() {
 	Height = 600;
 	BitsPerPixel = 32;
 
-	if(BGAVersion() == VBE_DISPI_ID5)
-		InitBochs();
-	else {
+	if (Info->vbe_mode_info) {
+		vbe_info_t* VBEInfo = (vbe_info_t*)Info->vbe_mode_info;
+		BitsPerPixel = VBEInfo->bpp;
+		Mem = (uint*)VBEInfo->physbase;
+
+		Initialized = true;
+	} else if(BGAVersion() == VBE_DISPI_ID5) {
+		BGAWrite(VBE_DISPI_INDEX_ENABLE, VBE_DISPI_DISABLED);
+		BGAWrite(VBE_DISPI_INDEX_XRES, Width);
+		BGAWrite(VBE_DISPI_INDEX_YRES, Height);
+		BGAWrite(VBE_DISPI_INDEX_BPP, BitsPerPixel);
+		BGAWrite(VBE_DISPI_INDEX_ENABLE, VBE_DISPI_ENABLED | VBE_DISPI_LFB_ENABLED);
+
+		// TODO: Proper way
+		Mem = (uint*)0xE0000000;
+
+		Initialized = true;
+	} else {
 		Kernel::Print("Can not initialize video!\n");
 		Kernel::CarpScreenOfDeath();
 	}
-}
-
-void Video::InitBochs() {
-	BGAWrite(VBE_DISPI_INDEX_ENABLE, VBE_DISPI_DISABLED);
-	BGAWrite(VBE_DISPI_INDEX_XRES, Width);
-	BGAWrite(VBE_DISPI_INDEX_YRES, Height);
-	BGAWrite(VBE_DISPI_INDEX_BPP, BitsPerPixel);
-	BGAWrite(VBE_DISPI_INDEX_ENABLE, VBE_DISPI_ENABLED | VBE_DISPI_LFB_ENABLED);
-
-	// TODO: Proper way
-	Mem = (uint*)0xE0000000;
-
-	Initialized = true;
 }
 
 void Video::SetPixel(int Idx, byte R, byte G, byte B) {

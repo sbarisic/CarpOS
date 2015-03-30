@@ -11,12 +11,16 @@
 #include <intrin.h>
 
 #define LOAD_ADDR (0x00101000)
-#define DATA_SIZE (1024 * 50)
-#define BSS_SIZE (1024 * 500)
-#define KERNEL_START LOAD_ADDR
-#define KERNEL_LENGTH (DATA_SIZE + BSS_SIZE)
 
-//#define KERNEL_END (KERNEL_START + KERNEL_LENGTH)
+/*
+#define DATA_ADDR (LOAD_ADDR + 1024 * 50)
+#define BSS_ADDR (LOAD_ADDR + 1024 * 500)
+//*/
+
+#define DATA_ADDR (0)
+#define BSS_ADDR (0)
+
+#define KERNEL_START LOAD_ADDR
 #define KERNEL_END 0xA00000
 
 EXTERN void multiboot_entry() {
@@ -29,13 +33,23 @@ EXTERN void multiboot_entry() {
 		dd(-(0x1BADB002 + FLAGS)); // checksum
 		dd(LOAD_ADDR); // header_addr
 		dd(LOAD_ADDR); // load_addr
-		dd(LOAD_ADDR + DATA_SIZE); // load_end_addr
-		dd(LOAD_ADDR + BSS_SIZE); // bss_end_addr
+		dd(DATA_ADDR); // load_end_addr
+		dd(BSS_ADDR); // bss_end_addr
 		dd(LOAD_ADDR + 0x30); // entry_addr
-		dd(1); // mode_type
-		dd(80); // width
-		dd(25); // height
-		dd(0); // depth
+
+
+		dd(0); // mode_type
+		dd(800); // width
+		dd(600); // height
+		dd(32); // depth
+		//*/
+
+		/*
+		dd(1);
+		dd(0);
+		dd(0);
+		dd(0);
+		//*/
 ENTRY:
 
 		jmp KMain;
@@ -57,6 +71,8 @@ NAKED NORETURN void KMain() {
 		mov Info, ebx;
 		mov Memory::PlacementAddr, KERNEL_END;
 		mov StackSize, KB(10);
+		push 0;
+		popf;
 	}
 
 	StackPtr = (void*)((uint)Memory::KAlloc(StackSize) + StackSize);
@@ -180,12 +196,14 @@ NAKED NORETURN void Kernel::Init() {
 	CPU::Init();
 	ClearScreen();
 
-	Print("CarpOS initializing!\nCPU: ", CPU::CPUName, "\n");
+	Print("CarpOS initializing!\n");
+	Print("multiboot_entry @ ", (uint)&multiboot_entry, "\n");
+	Print("CPU: ", CPU::CPUName, "\n");
 	Print("Mem lower: ", Info->low_mem, "kb; ", Info->low_mem / 1024, "mb\n");
 	Print("Mem upper: ", Info->high_mem, "kb; ", Info->high_mem / 1024, "mb\n");
 	Print((char*)Info->cmdline, "\n");
 
-	Print("Initializing GDT\n");
+	Kernel::Print("Initializing GDT\n");
 	GDTInit();
 
 	Print("Initializing Interrupts\n");
@@ -196,10 +214,13 @@ NAKED NORETURN void Kernel::Init() {
 
 	multiboot_module* Mods;
 	Mods = (multiboot_module*)Info->mods_addr;
-	memcpy(Video::Mem, (void*)(Mods[0].mod_start), 800 * 600 * 4);
+	if (Info->mods_count > 0)
+		memcpy(Video::Mem, (void*)(Mods[0].mod_start), 800 * 600 * 4);
 
 	Print("Initializing Paging\n");
 	Paging::Init(Info->high_mem * 1024);
+
+	while (TickCount < 50);
 
 	Print("Initializing Memory\n");
 	//Memory::Init((void*)(KERNEL_END + StackSize));

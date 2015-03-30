@@ -33,8 +33,6 @@ private:
 	static ushort Height;
 	static ushort BitsPerPixel;
 
-	static void InitBochs();
-
 public:
 	static uint* Mem;
 	static bool Initialized;

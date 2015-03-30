@@ -40,20 +40,20 @@ _int_handler:
 	iret
 
 %macro DEFINE_ISR_NOERROR 1
+	global _isr_%1
 	_isr_%1:
 		cli
 		push byte 0
 		push byte %1
 		jmp _int_handler
-	global _isr_%1
 %endmacro
 
 %macro DEFINE_ISR_ERROR 1
+	global _isr_%1
 	_isr_%1:
 		cli
 		push byte %1
 		jmp _int_handler
-	global _isr_%1
 %endmacro
 
 DEFINE_ISR_NOERROR 0
@@ -109,7 +109,7 @@ DEFINE_ISR_NOERROR 47
 
 DEFINE_ISR_NOERROR 80 ; SYSCALLS
 
-section .data
-	resb 1024 * 50
-section .bss
-	resb 1024 * 50
+;section .data
+;	resb 1024 * 50
+;section .bss
+;	resb 1024 * 50

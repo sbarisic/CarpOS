@@ -7,6 +7,7 @@
 
 IDTEntry IDT[IDTSIZE];
 IDTPtr IDTP;
+uint TickCount;
 
 const char* IntNames[] = {
 	"Div by zero",
@@ -90,6 +91,7 @@ EXTERN void empty_handler(Regs* R) {
 		__outbyte(PIC1, 0x20);
 
 		if (IRQ == 0) {
+			TickCount++;
 			Kernel::PrintTime();
 		} else if (IRQ == 1) {
 			Keyboard::OnKey(Keyboard::InData());
@@ -139,6 +141,8 @@ void IRQClearMask(byte IRQLine) {
 }
 
 void InterruptsInit() {
+	TickCount = 0;
+
 	IDTP.limit = (sizeof(IDTEntry) * IDTSIZE) - 1;
 	IDTP.base = (uint)&IDT;
 	memset(&IDT, NULL, sizeof(IDTEntry) * IDTSIZE);

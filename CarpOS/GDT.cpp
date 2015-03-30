@@ -1,4 +1,6 @@
 #include "GDT.h"
+#include "Memory.h"
+#include "Kernel.h"
 #include <string.h>
 
 GDTEntry GDT[GDTSIZE];
@@ -21,11 +23,12 @@ void GDTInitDesc(int Num, ulong Base, ulong Limit, byte Access, byte Gran) {
 void GDTInit() {
 	GDTP.limit = sizeof(GDTEntry) * GDTSIZE - 1;
 	GDTP.base = (uint)&GDT;
+	memset(GDT, 0, sizeof(GDTEntry) * GDTSIZE);
 
 	GDTInitDesc(0, 0, 0, 0, 0);
 	GDTInitDesc(1, 0, 0xFFFFFFFF, 0x9A, 0xCF);
 	GDTInitDesc(2, 0, 0xFFFFFFFF, 0x92, 0xCF);
 
-	//ASM lgdt [GDTP];
+	ASM lgdt GDTP;
 	GDTFlush();
 }
