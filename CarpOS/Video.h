@@ -32,12 +32,12 @@ private:
 	static ushort Width;
 	static ushort Height;
 	static ushort BitsPerPixel;
-	static bool Initialized;
-	
+
 	static void InitBochs();
 
 public:
 	static uint* Mem;
+	static bool Initialized;
 
 	static void Init();
 	static void SetPixel(int Idx, byte R, byte G, byte B);

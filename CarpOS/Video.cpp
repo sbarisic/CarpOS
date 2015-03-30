@@ -30,7 +30,7 @@ void Video::Init() {
 		InitBochs();
 	else {
 		Kernel::Print("Can not initialize video!\n");
-		Kernel::Terminate();
+		Kernel::CarpScreenOfDeath();
 	}
 }
 

@@ -83,11 +83,6 @@ EXTERN void empty_handler(Regs* R) {
 		}
 
 		Kernel::CarpScreenOfDeath();
-		/*ASM {
-			cli;
-			hlt;
-			jmp $;
-		}*/
 	} else if (R->int_no >= 32 && R->int_no < 48) {
 		int IRQ = R->int_no - 32;
 		if (IRQ >= 8)

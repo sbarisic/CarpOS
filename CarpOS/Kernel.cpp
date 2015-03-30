@@ -36,7 +36,7 @@ EXTERN void multiboot_entry() {
 		dd(80); // width
 		dd(25); // height
 		dd(0); // depth
-		ENTRY:
+ENTRY:
 
 		jmp KMain;
 	}
@@ -180,14 +180,14 @@ NAKED NORETURN void Kernel::Init() {
 	CPU::Init();
 	ClearScreen();
 
-	Print("CPU: ", CPU::CPUName, "\n");
+	Print("CarpOS initializing!\nCPU: ", CPU::CPUName, "\n");
 	Print("Mem lower: ", Info->low_mem, "kb; ", Info->low_mem / 1024, "mb\n");
 	Print("Mem upper: ", Info->high_mem, "kb; ", Info->high_mem / 1024, "mb\n");
 	Print((char*)Info->cmdline, "\n");
 
 	Print("Initializing GDT\n");
 	GDTInit();
-	
+
 	Print("Initializing Interrupts\n");
 	InterruptsInit();
 
@@ -211,7 +211,8 @@ NAKED NORETURN void Kernel::Init() {
 
 void Kernel::CarpScreenOfDeath() {
 	Paging::Disable();
-	memcpy(Video::Mem, (void*)(((multiboot_module*)Info->mods_addr)[1].mod_start), 800 * 600 * 4);
+	if (Video::Initialized)
+		memcpy(Video::Mem, (void*)(((multiboot_module*)Info->mods_addr)[1].mod_start), 800 * 600 * 4);
 	Terminate();
 }
 
