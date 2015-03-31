@@ -37,7 +37,7 @@ EXTERN void multiboot_entry() {
 		dd(BSS_ADDR); // bss_end_addr
 		dd(LOAD_ADDR + 0x30); // entry_addr
 
-
+		
 		dd(0); // mode_type
 		dd(800); // width
 		dd(600); // height
@@ -112,15 +112,20 @@ void CPU::Init() {
 
 void print(const char* Str) {
 	__outbytestring(0xE9, (byte*)Str, strlen(Str));
+	Video::DrawImage((uint*)((multiboot_module*)Info->mods_addr)[0].mod_start);
 
 	static int i = 0;
 	for (; *Str; Str++, i++) {
 		if (*Str == '\n') {
-			Kernel::Scroll();
+			//Kernel::Scroll();
+			Video::ScrollText();
 			i = -1;
-		} else
-			CPU::VideoMemory[24 * 80 + i] = (unsigned char)*Str | 0x700;
+		} else {
+			Video::SetChar(i, 74, *Str);
+			//CPU::VideoMemory[24 * 80 + i] = (unsigned char)*Str | 0x700;
+		}
 	}
+	Video::DisplayText();
 }
 
 void print(int i, int base) {
@@ -129,36 +134,22 @@ void print(int i, int base) {
 	print(buf);
 }
 
-void Kernel::ClearLine(int l) {
-	memset(CPU::VideoMemory + 80 * l, NULL, sizeof(ushort) * 80);
+/*void Kernel::ClearLine(int l) {
+memset(CPU::VideoMemory + 80 * l, NULL, sizeof(ushort) * 80);
 }
 
 void Kernel::ClearScreen() {
-	for (int i = 0; i < 25; i++)
-		ClearLine(i);
-}
-
-void Kernel::PrintTime() {
-	PrintAt(72, 0, RTC::GetTime());
+for (int i = 0; i < 25; i++)
+ClearLine(i);
 }
 
 void Kernel::Scroll() {
-	for (int i = 1; i < 25; i++) {
-		ClearLine(i - 1);
-		memcpy(CPU::VideoMemory + 80 * (i - 1), CPU::VideoMemory + 80 * i, sizeof(ushort) * 80);
-	}
-	ClearLine(24);
+for (int i = 1; i < 25; i++) {
+ClearLine(i - 1);
+memcpy(CPU::VideoMemory + 80 * (i - 1), CPU::VideoMemory + 80 * i, sizeof(ushort) * 80);
 }
-
-void Kernel::PrintAt(int x, int y, const char* Str) {
-	for (int i = x; *Str; Str++, i++) {
-		if (*Str == '\n') {
-			Scroll();
-			i = -1;
-		} else 
-			CPU::VideoMemory[24 * y + i] = (unsigned char)*Str | 0x700;
-	}
-}
+ClearLine(24);
+}*/
 
 template<>
 void Kernel::Print(bool B) {
@@ -194,10 +185,18 @@ void Kernel::Print(char* A) {
 
 NAKED NORETURN void Kernel::Init() {
 	CPU::Init();
-	ClearScreen();
+	Video::Init();
+
+	if (Info->mods_count > 0) {
+		Video::Font = (uint*)((multiboot_module*)Info->mods_addr)[2].mod_start;
+		Video::CharW = Video::CharH = 8;
+		Video::ClearScreen();
+		Video::DrawImage((uint*)((multiboot_module*)Info->mods_addr)[0].mod_start);
+	}
 
 	Print("CarpOS initializing!\n");
-	Print("multiboot_entry @ ", (uint)&multiboot_entry, "\n");
+	Print("multiboot entry @ ", (uint)&multiboot_entry, "\n");
+	Print("video memory @ ", (uint)Video::Mem, "\n");
 	Print("CPU: ", CPU::CPUName, "\n");
 	Print("Mem lower: ", Info->low_mem, "kb; ", Info->low_mem / 1024, "mb\n");
 	Print("Mem upper: ", Info->high_mem, "kb; ", Info->high_mem / 1024, "mb\n");
@@ -209,36 +208,31 @@ NAKED NORETURN void Kernel::Init() {
 	Print("Initializing Interrupts\n");
 	InterruptsInit();
 
-	Print("Initializing Video\n");
-	Video::Init();
-
-	multiboot_module* Mods;
-	Mods = (multiboot_module*)Info->mods_addr;
-	if (Info->mods_count > 0)
-		memcpy(Video::Mem, (void*)(Mods[0].mod_start), 800 * 600 * 4);
+	while (TickCount < 50);
+	//Terminate();
 
 	Print("Initializing Paging\n");
 	Paging::Init(Info->high_mem * 1024);
 
-	while (TickCount < 50);
-
 	Print("Initializing Memory\n");
-	//Memory::Init((void*)(KERNEL_END + StackSize));
-	Memory::Init((void*)Memory::PlacementAddr);
-
+	Memory::Init((void*)(Memory::PlacementAddr + 0x10000));
+	
 	Print("Done!\n");
 	Terminate();
 }
 
 void Kernel::CarpScreenOfDeath() {
-	Paging::Disable();
-	if (Video::Initialized)
-		memcpy(Video::Mem, (void*)(((multiboot_module*)Info->mods_addr)[1].mod_start), 800 * 600 * 4);
+	if (Video::Initialized) {
+		Video::DrawImage((uint*)((multiboot_module*)Info->mods_addr)[1].mod_start);
+		Video::DisplayText();
+	}
 	Terminate();
 }
 
 void Kernel::Terminate() {
 	ASM {
+		cli;
+		hlt;
 		jmp $;
 	}
 }

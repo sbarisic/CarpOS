@@ -92,7 +92,7 @@ void Paging::Init(uint MemLen) {
 
 	uint i = 0;
 	while (i < Memory::PlacementAddr) {
-		//while (i < MemLen) {
+	//while (i < MemLen) {
 		AllocFrame(GetPage(i, true, KernelDirectory), true, false);
 		i += 0x1000;
 	}

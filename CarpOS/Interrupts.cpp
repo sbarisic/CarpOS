@@ -45,6 +45,9 @@ void IDTInitDesc(ushort Select, void* Handler, byte Type, int IDTN) {
 
 EXTERN void empty_handler(Regs* R) {
 	if (R->int_no < 32) {
+		if (R->int_no == 14)
+			Paging::Disable();
+
 		Kernel::Print("\n");
 		if (R->int_no < 20)
 				Kernel::Print(IntNames[R->int_no]);
@@ -92,7 +95,6 @@ EXTERN void empty_handler(Regs* R) {
 
 		if (IRQ == 0) {
 			TickCount++;
-			Kernel::PrintTime();
 		} else if (IRQ == 1) {
 			Keyboard::OnKey(Keyboard::InData());
 		} else {

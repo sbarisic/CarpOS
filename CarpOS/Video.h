@@ -35,9 +35,20 @@ private:
 
 public:
 	static uint* Mem;
+	static uint* TextMem;
+	static uint* Font;
+	static uint CharW;
+	static uint CharH;
+
 	static bool Initialized;
 
 	static void Init();
+	static void DisplayText();
+	static void DrawImage(uint* Img);
+	//static void ClearLine(int i);
+	static void ClearScreen();
+	static void ScrollText();
+	static void SetChar(int X, int Y, char C);
 	static void SetPixel(int Idx, byte R, byte G, byte B);
 	static void SetPixel(int X, int Y, byte R, byte G, byte B);
 };
