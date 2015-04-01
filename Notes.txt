@@ -1,8 +1,6 @@
 grub2 generated using following command line
 
-E:\cygwin\bin>grub-mkimage -O i386-pc-eltorito -p /boot/grub -o E:\Projects\Ca
-rpOS\boot_template\boot\grub\grub2 multiboot biosdisk iso9660 help normal cat
-configfile boot cat chain cmp date datetime echo exfat ext2 extcmd fat file fo
-nt freedos gfxmenu reboot ntfs fat gfxterm drivemap disk usb usb_keyboard usbm
-s vga vbe video vga_text videoinfo videotest video_fb video_bochs video_cirrus
- usbtest legacycfg
+E:\cygwin\bin>
+grub-mkimage -O i386-pc-eltorito -p /boot/grub -o E:\Projects\CarpOS\boot_template\boot\grub\grub2 multiboot biosdisk iso9660 help normal cat configfile boot cat chain cmp date datetime echo exfat ext2 extcmd fat file font freedos gfxmenu reboot ntfs fat gfxterm drivemap disk usb usb_keyboard usbms vga vbe video vga_text videoinfo videotest video_fb video_bochs video_cirrus usbtest legacycfg pxe
+
+grub-mkimage -O x86_64-efi -p (pxe)/boot/grub -o E:\Projects\CarpOS\bin\grub2.efi normal tftp help reboot net efinet gzio echo cat multiboot2 normal multiboot

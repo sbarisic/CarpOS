@@ -29,18 +29,20 @@ uint Video::CharH = 0;
 bool Video::Initialized = false;
 
 void Video::Init() {
+	Initialized = false;
 	Width = 800;
 	Height = 600;
 	BitsPerPixel = 32;
 
-	if (Info->vbe_mode_info) {
-		vbe_info_t* VBEInfo = (vbe_info_t*)Info->vbe_mode_info;
-		BitsPerPixel = VBEInfo->bpp;
-		Width = VBEInfo->Xres;
-		Height = VBEInfo->Yres;
+	if (Info->flags & (1 << 11) != 0) {
+		vbe_info_t* VBEInfo = (vbe_info_t*)Info->vbe_mode_info;	
 		Mem = (uint*)VBEInfo->physbase;
-
-		Initialized = true;
+		if (Mem != NULL) {
+			BitsPerPixel = VBEInfo->bpp;
+			Width = VBEInfo->Xres;
+			Height = VBEInfo->Yres;
+			Initialized = true;
+		}
 	} else if(BGAVersion() == VBE_DISPI_ID5) {
 		BGAWrite(VBE_DISPI_INDEX_ENABLE, VBE_DISPI_DISABLED);
 		BGAWrite(VBE_DISPI_INDEX_XRES, Width);
@@ -57,10 +59,14 @@ void Video::Init() {
 		Kernel::CarpScreenOfDeath();
 	}
 
-	TextMem = Mem + (Width * Height * (BitsPerPixel / 8));
+	if (Initialized)
+		TextMem = Mem + (Width * Height * (BitsPerPixel / 8));
 }
 
 void Video::DisplayText() {
+	if (!Initialized)
+		return;
+
 	for (int i = 0; i < Width * Height * (BitsPerPixel / 8); i++) {
 		if (TextMem[i] != 0)
 			Mem[i] = TextMem[i];
@@ -70,10 +76,14 @@ void Video::DisplayText() {
 void Video::SetPixel(int Idx, byte R, byte G, byte B) {
 	if (!Initialized)
 		return;
+
 	Mem[Idx] = TO_COLOR(R, G, B);
 }
 
 void Video::SetPixel(int X, int Y, byte R, byte G, byte B) {
+	if (!Initialized)
+		return;
+
 	SetPixel(Y * Width + X, R, G, B);
 }
 
@@ -82,19 +92,28 @@ uint GetCharColor(uint X, uint Y, char C) {
 }
 
 void Video::DrawImage(uint* Img) {
+	if (!Initialized)
+		return;
+
 	memcpy(Mem, Img, Width * Height * (BitsPerPixel / 8));
 }
 
 /*void Video::ClearLine(int i) {
-	uint TextWidth = Width * (BitsPerPixel / 8);
-	memset(TextMem + TextWidth * i * CharH, 0xFFFFFF, TextWidth * CharH);
+uint TextWidth = Width * (BitsPerPixel / 8);
+memset(TextMem + TextWidth * i * CharH, 0xFFFFFF, TextWidth * CharH);
 }*/
 
 void Video::ClearScreen() {
+	if (!Initialized)
+		return;
+
 	memset(TextMem, NULL, Width * Height * (BitsPerPixel / 8));
 }
 
 void Video::ScrollText() {
+	if (!Initialized)
+		return;
+
 	for (int i = 0; i < Width * Height; i++)
 		TextMem[i] = TextMem[i + Width * CharH];
 }
@@ -102,6 +121,7 @@ void Video::ScrollText() {
 void Video::SetChar(int X, int Y, char C) {
 	if (!Initialized)
 		return;
+
 	const int FontWidth = 16;
 
 	if (C > 128)

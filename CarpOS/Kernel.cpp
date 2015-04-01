@@ -11,20 +11,20 @@
 #include <intrin.h>
 
 #define LOAD_ADDR (0x00101000)
-
-/*
-#define DATA_ADDR (LOAD_ADDR + 1024 * 50)
-#define BSS_ADDR (LOAD_ADDR + 1024 * 500)
-//*/
-
 #define DATA_ADDR (0)
 #define BSS_ADDR (0)
-
 #define KERNEL_START LOAD_ADDR
 #define KERNEL_END 0xA00000
 
 EXTERN void multiboot_entry() {
-#define FLAGS ((1 << 16) /*| (1 << 3)*/ | (1 << 2) | (1 << 1) | (1 << 0))
+
+#define FLAG_16 (1 << 16)
+#define FLAG_3 (1 << 3)
+#define FLAG_VIDEO (1 << 2)
+#define FLAG_1 (1 << 1)
+#define FLAG_0 (1 << 0)
+
+#define FLAGS (FLAG_16 | FLAG_1 | FLAG_0)
 
 	ASM {
 		//multiboot_header:
@@ -37,17 +37,17 @@ EXTERN void multiboot_entry() {
 		dd(BSS_ADDR); // bss_end_addr
 		dd(LOAD_ADDR + 0x30); // entry_addr
 
-		
+		/*
 		dd(0); // mode_type
 		dd(800); // width
 		dd(600); // height
 		dd(32); // depth
 		//*/
 
-		/*
+		
 		dd(1);
-		dd(0);
-		dd(0);
+		dd(80);
+		dd(25);
 		dd(0);
 		//*/
 ENTRY:
@@ -117,12 +117,16 @@ void print(const char* Str) {
 	static int i = 0;
 	for (; *Str; Str++, i++) {
 		if (*Str == '\n') {
-			//Kernel::Scroll();
-			Video::ScrollText();
+			if (Video::Initialized)
+				Video::ScrollText();
+			else
+				Kernel::Scroll();
 			i = -1;
 		} else {
-			Video::SetChar(i, 74, *Str);
-			//CPU::VideoMemory[24 * 80 + i] = (unsigned char)*Str | 0x700;
+			if (Video::Initialized)
+				Video::SetChar(i, 74, *Str);
+			else
+				CPU::VideoMemory[24 * 80 + i] = (unsigned char)*Str | 0x700;
 		}
 	}
 	Video::DisplayText();
@@ -134,22 +138,22 @@ void print(int i, int base) {
 	print(buf);
 }
 
-/*void Kernel::ClearLine(int l) {
-memset(CPU::VideoMemory + 80 * l, NULL, sizeof(ushort) * 80);
+void Kernel::ClearLine(int l) {
+	memset(CPU::VideoMemory + 80 * l, NULL, sizeof(ushort) * 80);
 }
 
 void Kernel::ClearScreen() {
-for (int i = 0; i < 25; i++)
-ClearLine(i);
+	for (int i = 0; i < 25; i++)
+		ClearLine(i);
 }
 
 void Kernel::Scroll() {
-for (int i = 1; i < 25; i++) {
-ClearLine(i - 1);
-memcpy(CPU::VideoMemory + 80 * (i - 1), CPU::VideoMemory + 80 * i, sizeof(ushort) * 80);
+	for (int i = 1; i < 25; i++) {
+		ClearLine(i - 1);
+		memcpy(CPU::VideoMemory + 80 * (i - 1), CPU::VideoMemory + 80 * i, sizeof(ushort) * 80);
+	}
+	ClearLine(24);
 }
-ClearLine(24);
-}*/
 
 template<>
 void Kernel::Print(bool B) {
@@ -187,7 +191,7 @@ NAKED NORETURN void Kernel::Init() {
 	CPU::Init();
 	Video::Init();
 
-	if (Info->mods_count > 0) {
+	if (Info->mods_count > 0 && Video::Initialized) {
 		Video::Font = (uint*)((multiboot_module*)Info->mods_addr)[2].mod_start;
 		Video::CharW = Video::CharH = 8;
 		Video::ClearScreen();
@@ -195,8 +199,13 @@ NAKED NORETURN void Kernel::Init() {
 	}
 
 	Print("CarpOS initializing!\n");
-	Print("multiboot entry @ ", (uint)&multiboot_entry, "\n");
-	Print("video memory @ ", (uint)Video::Mem, "\n");
+	Print("Multiboot entry @ ", (uint)&multiboot_entry, "\n");
+	if (Video::Initialized) {
+		Print("Video memory @ ", (uint)Video::Mem, "\n");
+		/*Video::DrawImage((uint*)0);
+		Terminate();*/
+	} else
+		Print("WARNING: Video not initialized!\n");
 	Print("CPU: ", CPU::CPUName, "\n");
 	Print("Mem lower: ", Info->low_mem, "kb; ", Info->low_mem / 1024, "mb\n");
 	Print("Mem upper: ", Info->high_mem, "kb; ", Info->high_mem / 1024, "mb\n");
@@ -216,7 +225,7 @@ NAKED NORETURN void Kernel::Init() {
 
 	Print("Initializing Memory\n");
 	Memory::Init((void*)(Memory::PlacementAddr + 0x10000));
-	
+
 	Print("Done!\n");
 	Terminate();
 }

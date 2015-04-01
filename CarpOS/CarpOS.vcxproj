@@ -105,7 +105,7 @@
     </CustomBuildStep>
     <PostBuildEvent>
       <Command>cd $(SolutionDir)
-$(SolutionDir)MakeISO.bat</Command>
+$(SolutionDir)MakePXE.bat</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>Building ISO</Message>
@@ -165,7 +165,7 @@ echo nasming asm.asm &amp;&amp; nasm -fwin32 asm.asm</Command>
     </CustomBuildStep>
     <PostBuildEvent>
       <Command>cd $(SolutionDir)
-$(SolutionDir)MakeISO.bat</Command>
+$(SolutionDir)MakePXE.bat</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>Building ISO</Message>

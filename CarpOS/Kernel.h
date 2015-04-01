@@ -100,9 +100,9 @@ public:
 		Print(A); Print(B); Print(C); Print(D); Print(E); Print(F);
 	}
 
-	/*static void Scroll();
+	static void Scroll();
 	static void ClearLine(int L);
-	static void ClearScreen();*/
+	static void ClearScreen();
 };
 
 /*void print(const char* Str);
