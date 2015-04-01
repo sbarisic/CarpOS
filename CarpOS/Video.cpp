@@ -1,5 +1,6 @@
 #include "Video.h"
 #include "Kernel.h"
+#include "Memory.h"
 #include <string.h>
 
 #define TO_COLOR(R, G, B) (B | (G << 8) | (R << 16))
@@ -67,7 +68,8 @@ void Video::Init() {
 		Kernel::CarpScreenOfDeath();
 	}
 
-	TextMem = Mem + (Width * Height * BytesPerPixel);
+	//TextMem = Mem + (Width * Height * BytesPerPixel);
+	TextMem = (Pixel*)Memory::KAlloc(Width * Height * BytesPerPixel);
 }
 
 void Video::DisplayText() {
@@ -125,8 +127,9 @@ void Video::ClearText() {
 void Video::ScrollText() {
 	if (!Initialized)
 		return;
-	for (int i = 0; i < Width * Height; i++)
-		TextMem[i] = TextMem[i + Width * CharH];
+
+	memcpy(TextMem, (void*)((uint)TextMem + (Width * CharH * BytesPerPixel)), Width * (Height - CharH) * BytesPerPixel);
+	memset((void*)((uint)TextMem + Width * (Height - CharH) * BytesPerPixel), 0, Width * CharH * BytesPerPixel);
 }
 
 void Video::SetChar(int X, int Y, char C) {
