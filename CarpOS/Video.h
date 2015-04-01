@@ -27,16 +27,26 @@
 #define VBE_DISPI_ENABLED		1
 #define VBE_DISPI_LFB_ENABLED	0x40
 
+typedef struct {
+	byte B;
+	byte G;
+	byte R;
+	byte A;
+} Pixel;
+
 class Video {
 private:
 	static ushort Width;
 	static ushort Height;
 	static ushort BitsPerPixel;
+	static ushort BytesPerPixel;
+	static uint Padding;
+	static uint BytesPerLine;
 
 public:
-	static uint* Mem;
-	static uint* TextMem;
-	static uint* Font;
+	static Pixel* Mem;
+	static Pixel* TextMem;
+	static Pixel* Font;
 	static uint CharW;
 	static uint CharH;
 
@@ -44,11 +54,12 @@ public:
 
 	static void Init();
 	static void DisplayText();
-	static void DrawImage(uint* Img);
+	static void DrawImage(Pixel* Img, bool DiscardBlack = false);
+	static void DrawScanline(uint L, Pixel* Line, bool DiscardBlack = false);
 	//static void ClearLine(int i);
-	static void ClearScreen();
+	static void ClearText();
 	static void ScrollText();
 	static void SetChar(int X, int Y, char C);
-	static void SetPixel(int Idx, byte R, byte G, byte B);
-	static void SetPixel(int X, int Y, byte R, byte G, byte B);
+	static void SetPixel(int Idx, Pixel P);
+	static void SetPixel(int X, int Y, Pixel P);
 };

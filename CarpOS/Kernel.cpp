@@ -18,38 +18,28 @@
 
 EXTERN void multiboot_entry() {
 
-#define FLAG_16 (1 << 16)
+#define FLAG_AOUT_KLUDGE (1 << 16)
 #define FLAG_3 (1 << 3)
 #define FLAG_VIDEO (1 << 2)
-#define FLAG_1 (1 << 1)
-#define FLAG_0 (1 << 0)
+#define FLAG_MEMORY_INFO (1 << 1)
+#define FLAG_PAGE_ALIGN (1 << 0)
 
-#define FLAGS (FLAG_16 | FLAG_1 | FLAG_0)
+#define FLAGS (FLAG_AOUT_KLUDGE | FLAG_MEMORY_INFO | FLAG_PAGE_ALIGN | FLAG_VIDEO)
 
 	ASM {
 		//multiboot_header:
-		dd(0x1BADB002); // magic
-		dd(FLAGS); // flags
-		dd(-(0x1BADB002 + FLAGS)); // checksum
-		dd(LOAD_ADDR); // header_addr
-		dd(LOAD_ADDR); // load_addr
-		dd(DATA_ADDR); // load_end_addr
-		dd(BSS_ADDR); // bss_end_addr
-		dd(LOAD_ADDR + 0x30); // entry_addr
-
-		/*
-		dd(0); // mode_type
-		dd(800); // width
-		dd(600); // height
-		dd(32); // depth
-		//*/
-
-		
-		dd(1);
-		dd(80);
-		dd(25);
-		dd(0);
-		//*/
+		dd(0x1BADB002);				// magic
+		dd(FLAGS);					// flags
+		dd(-(0x1BADB002 + FLAGS));	// checksum
+		dd(LOAD_ADDR);				// header_addr
+		dd(LOAD_ADDR);				// load_addr
+		dd(DATA_ADDR);				// load_end_addr
+		dd(BSS_ADDR);				// bss_end_addr
+		dd(LOAD_ADDR + 0x30);		// entry_addr
+		dd(0);						// mode_type
+		dd(800);					// width
+		dd(600);					// height
+		dd(32);						// depth
 ENTRY:
 
 		jmp KMain;
@@ -112,23 +102,20 @@ void CPU::Init() {
 
 void print(const char* Str) {
 	__outbytestring(0xE9, (byte*)Str, strlen(Str));
-	Video::DrawImage((uint*)((multiboot_module*)Info->mods_addr)[0].mod_start);
+	Video::DrawImage((Pixel*)((multiboot_module*)Info->mods_addr)[0].mod_start);
 
 	static int i = 0;
 	for (; *Str; Str++, i++) {
 		if (*Str == '\n') {
-			if (Video::Initialized)
-				Video::ScrollText();
-			else
-				Kernel::Scroll();
+			Video::ScrollText();
+			Kernel::Scroll();
 			i = -1;
 		} else {
-			if (Video::Initialized)
-				Video::SetChar(i, 74, *Str);
-			else
-				CPU::VideoMemory[24 * 80 + i] = (unsigned char)*Str | 0x700;
+			Video::SetChar(i, 74, *Str);
+			CPU::VideoMemory[24 * 80 + i] = (unsigned char)*Str | 0x700;
 		}
 	}
+
 	Video::DisplayText();
 }
 
@@ -191,21 +178,22 @@ NAKED NORETURN void Kernel::Init() {
 	CPU::Init();
 	Video::Init();
 
-	if (Info->mods_count > 0 && Video::Initialized) {
-		Video::Font = (uint*)((multiboot_module*)Info->mods_addr)[2].mod_start;
+	if (Video::Initialized && Info->mods_count > 0) {
+		Video::Font = (Pixel*)((multiboot_module*)Info->mods_addr)[2].mod_start;
 		Video::CharW = Video::CharH = 8;
-		Video::ClearScreen();
-		Video::DrawImage((uint*)((multiboot_module*)Info->mods_addr)[0].mod_start);
+		Video::ClearText();
+		Video::DrawImage((Pixel*)((multiboot_module*)Info->mods_addr)[0].mod_start);
+		//Terminate();
 	}
 
 	Print("CarpOS initializing!\n");
 	Print("Multiboot entry @ ", (uint)&multiboot_entry, "\n");
-	if (Video::Initialized) {
+
+	if (Video::Initialized) 
 		Print("Video memory @ ", (uint)Video::Mem, "\n");
-		/*Video::DrawImage((uint*)0);
-		Terminate();*/
-	} else
+	else
 		Print("WARNING: Video not initialized!\n");
+
 	Print("CPU: ", CPU::CPUName, "\n");
 	Print("Mem lower: ", Info->low_mem, "kb; ", Info->low_mem / 1024, "mb\n");
 	Print("Mem upper: ", Info->high_mem, "kb; ", Info->high_mem / 1024, "mb\n");
@@ -216,9 +204,6 @@ NAKED NORETURN void Kernel::Init() {
 
 	Print("Initializing Interrupts\n");
 	InterruptsInit();
-
-	while (TickCount < 50);
-	//Terminate();
 
 	Print("Initializing Paging\n");
 	Paging::Init(Info->high_mem * 1024);
@@ -232,16 +217,24 @@ NAKED NORETURN void Kernel::Init() {
 
 void Kernel::CarpScreenOfDeath() {
 	if (Video::Initialized) {
-		Video::DrawImage((uint*)((multiboot_module*)Info->mods_addr)[1].mod_start);
+		Video::DrawImage((Pixel*)((multiboot_module*)Info->mods_addr)[1].mod_start);
 		Video::DisplayText();
 	}
 	Terminate();
 }
 
 void Kernel::Terminate() {
+	while (true);
+
 	ASM {
-		cli;
-		hlt;
+		/*cli;
+		hlt;*/
 		jmp $;
 	}
+}
+
+void Kernel::Wait(uint Ticks) {
+	uint CurTick = TickCount;
+	while (TickCount < CurTick + Ticks)
+		;
 }

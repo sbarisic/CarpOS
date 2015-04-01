@@ -18,29 +18,37 @@ ushort BGAVersion() {
 	return BGARead(VBE_DISPI_INDEX_ID);
 }
 
-uint* Video::Mem = NULL;
-uint* Video::TextMem = NULL;
+Pixel* Video::Mem = NULL;
+Pixel* Video::TextMem = NULL;
 ushort Video::Width = 0;
 ushort Video::Height = 0;
 ushort Video::BitsPerPixel = 0;
-uint* Video::Font = NULL;
+ushort Video::BytesPerPixel = 0;
+Pixel* Video::Font = NULL;
 uint Video::CharW = 0;
 uint Video::CharH = 0;
+uint Video::Padding = 0;
+uint Video::BytesPerLine = 0;
 bool Video::Initialized = false;
 
 void Video::Init() {
 	Initialized = false;
 	Width = 800;
 	Height = 600;
-	BitsPerPixel = 32;
+	BitsPerPixel = 24;
+	Padding = 0;
 
 	if (Info->flags & (1 << 11) != 0) {
 		vbe_info_t* VBEInfo = (vbe_info_t*)Info->vbe_mode_info;	
-		Mem = (uint*)VBEInfo->physbase;
+		Mem = (Pixel*)VBEInfo->physbase;
 		if (Mem != NULL) {
 			BitsPerPixel = VBEInfo->bpp;
 			Width = VBEInfo->Xres;
 			Height = VBEInfo->Yres;
+
+			BytesPerLine = VBEInfo->pitch;
+			BytesPerPixel = BitsPerPixel / 8;
+			Padding = (VBEInfo->pitch / BytesPerPixel) - Width;
 			Initialized = true;
 		}
 	} else if(BGAVersion() == VBE_DISPI_ID5) {
@@ -51,7 +59,7 @@ void Video::Init() {
 		BGAWrite(VBE_DISPI_INDEX_ENABLE, VBE_DISPI_ENABLED | VBE_DISPI_LFB_ENABLED);
 
 		// TODO: Proper way
-		Mem = (uint*)0xE0000000;
+		Mem = (Pixel*)0xE0000000;
 
 		Initialized = true;
 	} else {
@@ -59,43 +67,48 @@ void Video::Init() {
 		Kernel::CarpScreenOfDeath();
 	}
 
-	if (Initialized)
-		TextMem = Mem + (Width * Height * (BitsPerPixel / 8));
+	TextMem = Mem + (Width * Height * BytesPerPixel);
 }
 
 void Video::DisplayText() {
 	if (!Initialized)
 		return;
-
-	for (int i = 0; i < Width * Height * (BitsPerPixel / 8); i++) {
-		if (TextMem[i] != 0)
-			Mem[i] = TextMem[i];
-	}
+	DrawImage(TextMem, true);
 }
 
-void Video::SetPixel(int Idx, byte R, byte G, byte B) {
+void Video::SetPixel(int Idx, Pixel P) {
 	if (!Initialized)
 		return;
-
-	Mem[Idx] = TO_COLOR(R, G, B);
+	Mem[Idx] = P;
 }
 
-void Video::SetPixel(int X, int Y, byte R, byte G, byte B) {
+void Video::SetPixel(int X, int Y, Pixel P) {
 	if (!Initialized)
 		return;
-
-	SetPixel(Y * Width + X, R, G, B);
+	SetPixel(Y * Width + X, P);
 }
 
-uint GetCharColor(uint X, uint Y, char C) {
+Pixel GetCharColor(uint X, uint Y, char C) {
 	return Video::Font[(((C / 16) * Video::CharH + Y) * 16 * Video::CharW) + (C % 16) * Video::CharW + X];
 }
 
-void Video::DrawImage(uint* Img) {
+void Video::DrawScanline(uint L, Pixel* Line, bool DiscardBlack) {
+	uint Offset = L * (Width + Padding);
+
+	for (int i = 0; i < Width; i++) {
+		Pixel P = Line[i];
+		if (DiscardBlack && P.R == 0 && P.G == 0 && P.B == 0)
+			continue;
+		Mem[Offset + i] = P;
+	}
+}
+
+void Video::DrawImage(Pixel* Img, bool DiscardBlack) {
 	if (!Initialized)
 		return;
 
-	memcpy(Mem, Img, Width * Height * (BitsPerPixel / 8));
+	for (int i = 0; i < Height; i++) 
+		DrawScanline(i, Img + i * Width, DiscardBlack);
 }
 
 /*void Video::ClearLine(int i) {
@@ -103,17 +116,15 @@ uint TextWidth = Width * (BitsPerPixel / 8);
 memset(TextMem + TextWidth * i * CharH, 0xFFFFFF, TextWidth * CharH);
 }*/
 
-void Video::ClearScreen() {
+void Video::ClearText() {
 	if (!Initialized)
 		return;
-
-	memset(TextMem, NULL, Width * Height * (BitsPerPixel / 8));
+	memset(TextMem, NULL, Width * Height * BytesPerPixel);
 }
 
 void Video::ScrollText() {
 	if (!Initialized)
 		return;
-
 	for (int i = 0; i < Width * Height; i++)
 		TextMem[i] = TextMem[i + Width * CharH];
 }
@@ -129,8 +140,8 @@ void Video::SetChar(int X, int Y, char C) {
 
 	for (int CX = 0; CX < CharW; CX++)
 		for (int CY = 0; CY < CharH; CY++) {
-			uint Clr = GetCharColor(CX, CY, C);
-			if (Clr & 0xFF != 0)
+			Pixel Clr = GetCharColor(CX, CY, C);
+			if (Clr.R != 0 || Clr.G != 0 || Clr.B != 0)
 				TextMem[(Y * CharH + CY) * Width + (X * CharW + CX)] = Clr;
 		}
 }

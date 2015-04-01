@@ -103,6 +103,7 @@ public:
 	static void Scroll();
 	static void ClearLine(int L);
 	static void ClearScreen();
+	static void Wait(uint Ticks);
 };
 
 /*void print(const char* Str);
