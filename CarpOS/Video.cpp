@@ -23,6 +23,8 @@ Pixel* Video::Mem = NULL;
 Pixel* Video::TextMem = NULL;
 ushort Video::Width = 0;
 ushort Video::Height = 0;
+ushort Video::TextHeight = 0;
+ushort Video::TextWidth = 0;
 ushort Video::BitsPerPixel = 0;
 ushort Video::BytesPerPixel = 0;
 Pixel* Video::Font = NULL;
@@ -38,6 +40,7 @@ void Video::Init() {
 	Height = 600;
 	BitsPerPixel = 24;
 	Padding = 0;
+	CharW = CharH = 8;
 
 	if (Info->flags & (1 << 11) != 0) {
 		vbe_info_t* VBEInfo = (vbe_info_t*)Info->vbe_mode_info;	
@@ -70,6 +73,8 @@ void Video::Init() {
 
 	//TextMem = Mem + (Width * Height * BytesPerPixel);
 	TextMem = (Pixel*)Memory::KAlloc(Width * Height * BytesPerPixel);
+	TextWidth = Width / CharW;
+	TextHeight = Height / CharH;
 }
 
 void Video::DisplayText() {
@@ -90,8 +95,8 @@ void Video::SetPixel(int X, int Y, Pixel P) {
 	SetPixel(Y * Width + X, P);
 }
 
-Pixel GetCharColor(uint X, uint Y, char C) {
-	return Video::Font[(((C / 16) * Video::CharH + Y) * 16 * Video::CharW) + (C % 16) * Video::CharW + X];
+Pixel Video::GetCharColor(uint X, uint Y, char C) {
+	return Video::Font[(((C / 16) * CharH + Y) * 16 * CharW) + (C % 16) * CharW + X];
 }
 
 void Video::DrawScanline(uint L, Pixel* Line, bool DiscardBlack) {

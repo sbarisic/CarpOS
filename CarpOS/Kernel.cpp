@@ -111,7 +111,7 @@ void print(const char* Str) {
 			Kernel::Scroll();
 			i = -1;
 		} else {
-			Video::SetChar(i, 74, *Str);
+			Video::SetChar(i, Video::TextHeight - 1, *Str);
 			CPU::VideoMemory[24 * 80 + i] = (unsigned char)*Str | 0x700;
 		}
 	}
@@ -180,7 +180,6 @@ NAKED NORETURN void Kernel::Init() {
 
 	if (Video::Initialized && Info->mods_count > 0) {
 		Video::Font = (Pixel*)((multiboot_module*)Info->mods_addr)[2].mod_start;
-		Video::CharW = Video::CharH = 8;
 		Video::ClearText();
 		Video::DrawImage((Pixel*)((multiboot_module*)Info->mods_addr)[0].mod_start);
 		//Terminate();

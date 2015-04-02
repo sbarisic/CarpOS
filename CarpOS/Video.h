@@ -42,13 +42,15 @@ private:
 	static ushort BytesPerPixel;
 	static uint Padding;
 	static uint BytesPerLine;
+	static uint CharW;
+	static uint CharH;
 
 public:
+	static ushort TextWidth;
+	static ushort TextHeight;
 	static Pixel* Mem;
 	static Pixel* TextMem;
 	static Pixel* Font;
-	static uint CharW;
-	static uint CharH;
 
 	static bool Initialized;
 
@@ -62,4 +64,5 @@ public:
 	static void SetChar(int X, int Y, char C);
 	static void SetPixel(int Idx, Pixel P);
 	static void SetPixel(int X, int Y, Pixel P);
+	static Pixel Video::GetCharColor(uint X, uint Y, char C);
 };
