@@ -1,6 +1,7 @@
 #include "Video.h"
 #include "Kernel.h"
 #include "Memory.h"
+#include "Paging.h"
 #include <string.h>
 
 #define TO_COLOR(R, G, B) (B | (G << 8) | (R << 16))
@@ -77,10 +78,17 @@ void Video::Init() {
 	TextHeight = Height / CharH;
 }
 
-void Video::DisplayText() {
+void Video::DisplayText(Pixel* BackgroundImage) {
 	if (!Initialized)
 		return;
-	DrawImage(TextMem, true);
+
+	if (BackgroundImage == NULL)
+		DrawImage(TextMem);
+	else 
+		for (int i = 0; i < Height; i++) {
+			DrawScanline(i, BackgroundImage + i * Width);
+			DrawScanline(i, TextMem + i * Width, true);
+		}
 }
 
 void Video::SetPixel(int Idx, Pixel P) {
@@ -96,7 +104,7 @@ void Video::SetPixel(int X, int Y, Pixel P) {
 }
 
 Pixel Video::GetCharColor(uint X, uint Y, char C) {
-	return Video::Font[(((C / 16) * CharH + Y) * 16 * CharW) + (C % 16) * CharW + X];
+	return Video::Font[(((C / BIT_FONT_WIDTH) * CharH + Y) * BIT_FONT_WIDTH * CharW) + (C % BIT_FONT_WIDTH) * CharW + X];
 }
 
 void Video::DrawScanline(uint L, Pixel* Line, bool DiscardBlack) {
@@ -133,8 +141,9 @@ void Video::ScrollText() {
 	if (!Initialized)
 		return;
 
-	memcpy(TextMem, (void*)((uint)TextMem + (Width * CharH * BytesPerPixel)), Width * (Height - CharH) * BytesPerPixel);
-	memset((void*)((uint)TextMem + Width * (Height - CharH) * BytesPerPixel), 0, Width * CharH * BytesPerPixel);
+	uint BytesWide = Width * BytesPerPixel;
+	memcpy(TextMem, (void*)((uint)TextMem + (CharH * BytesWide)), (Height - CharH) * BytesWide);
+	memset((void*)((uint)TextMem + (Height - CharH) * BytesWide), 0, CharH * BytesWide);
 }
 
 void Video::SetChar(int X, int Y, char C) {

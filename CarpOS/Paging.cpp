@@ -1,6 +1,7 @@
 #include "Paging.h"
 #include "Kernel.h"
 #include "Memory.h"
+#include "Video.h"
 #include <string.h>
 
 #define INDEX_FROM_BIT(a) (a / (8 * 4))
@@ -76,10 +77,18 @@ Page* GetPage(uint Addr, bool Make, PageDirectory* Dir) {
 PageDirectory* Paging::CurrentDirectory = NULL;
 PageDirectory* Paging::KernelDirectory = NULL;
 
-uint Paging::GetRequiredSize() {
+/*uint Paging::GetRequiredSize() {
 	uint Size = 0;
 
 	return Size;
+}*/
+
+void Paging::IdentityMap(uint Start, uint Len) {
+	uint i = Start;
+	while (i < Len) {
+		AllocFrame(GetPage(i, true, KernelDirectory), true, false);
+		i += 0x1000;
+	}
 }
 
 void Paging::Init(uint MemLen) {

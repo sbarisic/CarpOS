@@ -27,6 +27,8 @@
 #define VBE_DISPI_ENABLED		1
 #define VBE_DISPI_LFB_ENABLED	0x40
 
+#define BIT_FONT_WIDTH 16
+
 typedef struct {
 	byte B;
 	byte G;
@@ -55,7 +57,7 @@ public:
 	static bool Initialized;
 
 	static void Init();
-	static void DisplayText();
+	static void DisplayText(Pixel* BackgroundImage = NULL);
 	static void DrawImage(Pixel* Img, bool DiscardBlack = false);
 	static void DrawScanline(uint L, Pixel* Line, bool DiscardBlack = false);
 	//static void ClearLine(int i);

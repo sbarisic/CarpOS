@@ -97,12 +97,15 @@ void CPU::Init() {
 	while (CPUName[SpaceIdx] == ' ')
 		SpaceIdx++;
 
+	ASM finit;
+	__writecr0((__readcr0() & 0xFFFFFFFB) | 0x22);
+	__writecr4(__readcr4() | 0x600);
+
 	CPU::VideoMemory = (ushort*)0xB8000;
 }
 
 void print(const char* Str) {
 	__outbytestring(0xE9, (byte*)Str, strlen(Str));
-	Video::DrawImage((Pixel*)((multiboot_module*)Info->mods_addr)[0].mod_start);
 
 	static int i = 0;
 	for (; *Str; Str++, i++) {
@@ -116,7 +119,7 @@ void print(const char* Str) {
 		}
 	}
 
-	Video::DisplayText();
+	Video::DisplayText((Pixel*)((multiboot_module*)Info->mods_addr)[0].mod_start);
 }
 
 void print(int i, int base) {
@@ -188,15 +191,15 @@ NAKED NORETURN void Kernel::Init() {
 	Print("CarpOS initializing!\n");
 	Print("Multiboot entry @ ", (uint)&multiboot_entry, "\n");
 
-	if (Video::Initialized) 
-		Print("Video memory @ ", (uint)Video::Mem, "\n");
-	else
-		Print("WARNING: Video not initialized!\n");
-
 	Print("CPU: ", CPU::CPUName, "\n");
 	Print("Mem lower: ", Info->low_mem, "kb; ", Info->low_mem / 1024, "mb\n");
 	Print("Mem upper: ", Info->high_mem, "kb; ", Info->high_mem / 1024, "mb\n");
 	Print((char*)Info->cmdline, "\n");
+
+	if (Video::Initialized) 
+		Print("Video memory @ ", (uint)Video::Mem, "\n");
+	else
+		Print("WARNING: Video not initialized!\n");
 
 	Kernel::Print("Initializing GDT\n");
 	GDTInit();
@@ -204,21 +207,20 @@ NAKED NORETURN void Kernel::Init() {
 	Print("Initializing Interrupts\n");
 	InterruptsInit();
 
-	Print("Initializing Paging\n");
-	Paging::Init(Info->high_mem * 1024);
-
 	Print("Initializing Memory\n");
 	Memory::Init((void*)(Memory::PlacementAddr + 0x10000));
+
+	// TODO: Proper paging and memory shit.
+	/*Print("Initializing Paging\n");
+	Paging::Init(Info->high_mem * 1024);*/
 
 	Print("Done!\n");
 	Terminate();
 }
 
 void Kernel::CarpScreenOfDeath() {
-	if (Video::Initialized) {
-		Video::DrawImage((Pixel*)((multiboot_module*)Info->mods_addr)[1].mod_start);
-		Video::DisplayText();
-	}
+	if (Video::Initialized) 
+		Video::DisplayText((Pixel*)((multiboot_module*)Info->mods_addr)[1].mod_start);
 	Terminate();
 }
 
